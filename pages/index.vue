@@ -1,3 +1,25 @@
+
+
+<template>
+  <div>
+    <p v-if="isLoading">Loading...</p>
+    <p v-else>Data: {{ fetchStore.getItems }}</p>
+
+    <h1>Login Page</h1>
+
+    <div v-if="!auth.token">
+      <input v-model="email" type="email" placeholder="Email" />
+      <input v-model="password" type="password" placeholder="Password" />
+      <button @click="handleLogin">Login</button>
+    </div>
+
+    <div v-else>
+      <p>Welcome, {{ auth.user?.name }}</p>
+      <button @click="auth.logout">Logout</button>
+    </div>
+  </div>
+</template>
+
 <script setup>
 import { useFetchStore } from '../src/stores/fetchStore.js'
 import { useLoading } from '../src/composables/useLoading'
@@ -26,23 +48,3 @@ async function handleLogin() {
   }
 }
 </script>
-
-<template>
-  <div>
-    <p v-if="isLoading">Loading...</p>
-    <p v-else>Data: {{ fetchStore.getItems }}</p>
-
-    <h1>Login Page</h1>
-
-    <div v-if="!auth.token">
-      <input v-model="email" type="email" placeholder="Email" />
-      <input v-model="password" type="password" placeholder="Password" />
-      <button @click="handleLogin">Login</button>
-    </div>
-
-    <div v-else>
-      <p>Welcome, {{ auth.user?.name }}</p>
-      <button @click="auth.logout">Logout</button>
-    </div>
-  </div>
-</template>
