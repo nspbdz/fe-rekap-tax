@@ -1,6 +1,17 @@
 <script setup>
+import { useFetchStore } from '../src/stores/fetchStore.js'
+import { useLoading } from '../src/composables/useLoading'
 import { useAuthStore } from "../src/stores/auth";
 import { ref } from 'vue'
+
+const fetchStore = useFetchStore()
+const { isLoading, setLoading } = useLoading()
+
+setLoading(true)
+
+fetchStore.fetchItems().finally(() => {
+  setLoading(false)
+})
 
 const auth = useAuthStore()
 const email = ref('')
@@ -18,6 +29,9 @@ async function handleLogin() {
 
 <template>
   <div>
+    <p v-if="isLoading">Loading...</p>
+    <p v-else>Data: {{ fetchStore.getItems }}</p>
+
     <h1>Login Page</h1>
 
     <div v-if="!auth.token">
