@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { useFetchStore } from '../src/stores/fetchStore.js'
+import { useFetchStore } from '../src/stores/fetchStore'
 import { useLoading } from '../src/composables/useLoading'
 import { useAuthStore } from "../src/stores/auth";
 import { ref } from 'vue'

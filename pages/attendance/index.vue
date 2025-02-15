@@ -1,5 +1,6 @@
   <template>
-  <v-container>
+    <p v-if="isLoading">Loading...</p>
+  <v-container v-else>
     <h2>Daftar Kehadiran</h2>
 
     <!-- Tombol Kembali -->
@@ -75,23 +76,6 @@
       </v-col>
     </v-row>
 
-    <!-- <v-row class="my-4">
-      <v-col cols="8" md="4">
-        <v-text-field v-model="searchNIK" label="Cari NIK" clearable></v-text-field>
-      </v-col>
-      <v-col cols="8" md="4">
-        <v-select 
-          v-model="selectedLocation" 
-          label="Pilih Lokasi"
-          :items="locations" 
-          clearable>
-        </v-select>
-      </v-col>
-      <v-col cols="8" md="4">
-        <v-text-field v-model="searchNIK" label="Cari NIK" clearable></v-text-field>
-      </v-col>
-    </v-row> -->
-
     <!-- Tabel Kehadiran -->
     <v-table>
       <thead>
@@ -99,37 +83,73 @@
           <th>NIK</th>
           <th>Nama</th>
           <th>Lokasi</th>
-          <th>Total Kehadiran</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(item, index) in filteredAttendance" :key="index">
-          <td>{{ item.nik }}</td>
-          <td>{{ item.nama }}</td>
-          <td>{{ item.lokasi }}</td>
-          <td>{{ getTotalHadir(item.kehadiran) }} Hari</td>
-          <td>
-            <v-btn color="primary" @click="showDetail(item.id)">
-              Show
-            </v-btn>
-            <v-btn color="primary" @click="update(item.id)">
-              Update
-            </v-btn>
-          </td>
-        </tr>
+
+        <tr v-for="item in attendanceStore.attendances" :key="item.id">
+        <td>{{ item.taxpayer.nik }}</td>
+        <td>{{ item.taxpayer.name }}</td>
+        <td>{{ item.project.project_name }}</td>
+        <td>
+          <v-btn color="primary" @click="showDetail(item.id)">Show</v-btn>
+          <v-btn color="primary" @click="update(item.id)">Update</v-btn>
+        </td>
+      </tr>
       </tbody>
     </v-table>
   </v-container>
 </template>
 
 <script setup>
-import BaseDialog from "../../src/components/BaseDialog.vue";
-import BaseForm from "../../src/components/BaseForm.vue";
+import BaseDialog from "../../src/components/BaseDialog";
+import BaseForm from "../../src/components/BaseForm";
 
-import { ref, computed } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import attendanceData from "../attendance_january_2025.js";
+
+import { useAttendanceStore } from '../src/stores/attendanceStore'
+// import { useFetchStore } from '../src/stores/fetchStore'
+import { useLoading } from '../src/composables/useLoading'
+
+const attendanceStore = useAttendanceStore()
+const { isLoading, setLoading } = useLoading()
+
+setLoading(true)
+
+// onMounted(() => {
+//   setLoading(true);
+//   attendanceStore.fetchAttendances().then(() => {
+//     console.log("Data Attendances:", attendanceStore);
+//   }).catch(error => {
+//     console.error("Error fetching attendances:", error);
+//   }).finally(() => {
+//     setLoading(false);
+//   });
+// });
+
+onMounted(() => {
+  attendanceStore.fetchAttendances().then(() => {
+    console.log("Data Kehadiran:", attendanceStore.attendances); // Cek di console
+  }).finally(() => {
+    setLoading(false);
+  });
+});
+
+
+const getStatusText = (status) => {
+  const statusMap = {
+    "1": "Hadir",
+    "2": "Izin",
+    "3": "Alpha"
+  };
+  return statusMap[status] || "Unknown";
+};
+
+
+
 
 const formData = ref({
   tanggal: "",
