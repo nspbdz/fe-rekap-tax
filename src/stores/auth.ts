@@ -10,8 +10,9 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(email: string, password: string) {
       try {
+        console.log('masd')
         const response = await $fetch<{ success: boolean; message: string; data: { error: number; id: number; token: string } }>(
-          `${useRuntimeConfig().public.BACKEND_SERVICE}/login`,
+          `${useRuntimeConfig().public.BACKEND_SERVICE}/v1/login`,
           {
             method: 'POST',
             body: { email, password },

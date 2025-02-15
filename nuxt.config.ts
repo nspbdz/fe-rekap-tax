@@ -1,7 +1,7 @@
 export default defineNuxtConfig({
   runtimeConfig: {
     public: {
-      BACKEND_SERVICE: process.env.NUXT_PUBLIC_BACKEND_SERVICE || 'http://localhost:8000/api/v1',
+      BACKEND_SERVICE: process.env.NUXT_PUBLIC_BACKEND_SERVICE || 'http://localhost:8000/api',
     },
   },
   nitro: {
