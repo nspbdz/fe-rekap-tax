@@ -9,8 +9,20 @@
     <v-btn color="secondary" @click="goBack">Kembali</v-btn>
     </div>
     <br>
-    <!-- Filter -->
     <v-row no-gutters>
+      <v-col cols="4">
+        <v-text-field v-model="searchNIK" label="Cari NIK" clearable></v-text-field>
+      </v-col>
+      <v-col cols="4">
+        <v-select v-model="selectedLocation" label="Pilih Lokasi" :items="locations" clearable></v-select>
+      </v-col>
+      <v-col cols="4">
+        <v-btn color="primary" @click="fetchAttendances">Cari</v-btn>
+      </v-col>
+    </v-row>
+
+    <!-- Filter -->
+    <!-- <v-row no-gutters>
       <v-col cols="9">
 
         <v-row >
@@ -74,7 +86,7 @@
 
         </v-row>
       </v-col>
-    </v-row>
+    </v-row> -->
 
     <!-- Tabel Kehadiran -->
     <v-table>
@@ -88,7 +100,7 @@
       </thead>
       <tbody>
 
-        <tr v-for="item in attendanceStore.attendances" :key="item.id">
+        <tr v-for="item in attendances" :key="item.id">
         <td>{{ item.taxpayer.nik }}</td>
         <td>{{ item.taxpayer.name }}</td>
         <td>{{ item.project.project_name }}</td>
@@ -99,6 +111,9 @@
       </tr>
       </tbody>
     </v-table>
+
+    <v-pagination v-model="currentPage" :length="totalPages" @update:modelValue="fetchAttendances"></v-pagination>
+
   </v-container>
 </template>
 
@@ -117,6 +132,14 @@ import { useLoading } from '../src/composables/useLoading'
 const attendanceStore = useAttendanceStore()
 const { isLoading, setLoading } = useLoading()
 
+const currentPage = ref(1);
+const searchNIK = ref("");
+const selectedLocation = ref(null);
+const locations = ["cisauk", "vbi", "sumarecon bekasi"];
+const attendances = ref([]);
+const totalPages = ref(1);
+
+
 setLoading(true)
 
 // onMounted(() => {
@@ -130,13 +153,34 @@ setLoading(true)
 //   });
 // });
 
-onMounted(() => {
-  attendanceStore.fetchAttendances().then(() => {
-    console.log("Data Kehadiran:", attendanceStore.attendances); // Cek di console
-  }).finally(() => {
-    setLoading(false);
+// onMounted(() => {
+//   attendanceStore.fetchAttendances().then(() => {
+//     console.log("Data Kehadiran:", attendanceStore.attendances); // Cek di console
+//   }).finally(() => {
+//     setLoading(false);
+//   });
+// });
+
+const fetchAttendances = async () => {
+  console.log('searchNIK.value', searchNIK.value)
+  console.log('123.value', selectedLocation.value)
+  setLoading(true);
+  const response = await attendanceStore.fetchAttendances({
+    nik: searchNIK.value,
+    project_name: selectedLocation.value,
+    per_page: 10,
+    page: currentPage.value
   });
-});
+
+  console.log('attendances.value', response.data)
+  console.log('attendances', response)
+
+  attendances.value = response.data;
+  totalPages.value = response.last_page;
+  setLoading(false);
+};
+
+onMounted(fetchAttendances);
 
 
 const getStatusText = (status) => {
@@ -191,9 +235,6 @@ const isAddAbsensiOpen = ref(false);
 const isDialogExporOpen = ref(false);
 
 const router = useRouter();
-const searchNIK = ref("");
-const selectedLocation = ref(null);
-const locations = ["cisauk", "vbi", "sumarecon bekasi"];
 
 const addAttendance = (item) => {
   selectedDetail.value = item;
@@ -221,11 +262,11 @@ const getTotalHadir = (kehadiran) => {
 };
 
 // Filter data berdasarkan NIK dan lokasi
-const filteredAttendance = computed(() => {
-  return attendanceData.filter(item => {
-    const matchNIK = searchNIK.value ? item.nik.includes(searchNIK.value) : true;
-    const matchLocation = selectedLocation.value ? item.lokasi === selectedLocation.value : true;
-    return matchNIK && matchLocation;
-  });
-});
+// const filteredAttendance = computed(() => {
+//   return attendanceData.filter(item => {
+//     const matchNIK = searchNIK.value ? item.nik.includes(searchNIK.value) : true;
+//     const matchLocation = selectedLocation.value ? item.lokasi === selectedLocation.value : true;
+//     return matchNIK && matchLocation;
+//   });
+// });
 </script>
