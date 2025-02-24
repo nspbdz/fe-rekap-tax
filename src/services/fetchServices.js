@@ -4,7 +4,7 @@ export default {
   async GetFetch() {
     try {
       console.log('[Service] Fetching attendances...')
-      const response = await api.doGet('attendances')
+      const response = await api.post('attendances')
       console.log('[Service] Response:', response)
       return response
     } catch (error) {

@@ -21,11 +21,20 @@ class Api {
     }
   }
 
-  async doPost(url, body) {
+  async doPost(url, body = {}) {
     try {
       const fullUrl = `${this.apiBase}/${url}`
       console.log(`[POST] Request URL:`, fullUrl)
-      const response = await ofetch(fullUrl, { method: 'POST', body })
+      console.log(`[POST] Request Body:`, body)
+  
+      const response = await ofetch(fullUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body) // Ubah body menjadi JSON
+      })
+  
       console.log(`[POST] Response:`, response)
       return response
     } catch (error) {
@@ -33,6 +42,7 @@ class Api {
       throw error
     }
   }
+  
 }
 
 export default new Api()

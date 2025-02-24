@@ -9,6 +9,14 @@ export default {
     }
   },
 
+  async DatatableAttendances(payload) {
+    try {
+      return await api.doPost('attendances', payload) // Tambahkan payload
+    } catch (error) {
+      throw error
+    }
+  },
+  
   async createAttendance(payload) {
     try {
       return await api.doPost('attendances', payload)

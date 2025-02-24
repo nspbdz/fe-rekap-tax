@@ -11,19 +11,26 @@ export const useAttendanceStore = defineStore('attendance', {
     items: (state) => state.attendances,
   },
 
+  
+
   actions: {
-    async fetchAttendances() {
+    async fetchAttendances(payload) {
       this.loading = true
       try {
-        console.log('[Store] Fetching attendances...')
-        // this.items = await attendanceService.GetFetch()
-        const res = await attendanceService.getAttendances();
-        console.log('123', res.data)
-        // this.attendances = res.data;
-        this.attendances = res.data;
-        return res;
+        console.log('[Store] Fetching attendances with payload:', payload)
+        const response = await attendanceService.DatatableAttendances(payload)
+  
+        if (response?.data) {
+          this.attendances = response
+          return response  // Tambahkan return agar bisa digunakan di FE
+        } else {
+          console.warn('[Store] API response does not contain data:', response)
+          return [] // Kembalikan array kosong jika tidak ada data
+        }
+  
       } catch (error) {
         console.error('[Store] Fetching Error:', error)
+        return [] // Kembalikan array kosong jika terjadi error
       } finally {
         this.loading = false
       }

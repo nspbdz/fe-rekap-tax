@@ -9,84 +9,47 @@
     <v-btn color="secondary" @click="goBack">Kembali</v-btn>
     </div>
     <br>
-    <v-row no-gutters>
-      <v-col cols="4">
-        <v-text-field v-model="searchNIK" label="Cari NIK" clearable></v-text-field>
-      </v-col>
-      <v-col cols="4">
-        <v-select v-model="selectedLocation" label="Pilih Lokasi" :items="locations" clearable></v-select>
-      </v-col>
-      <v-col cols="4">
-        <v-btn color="primary" @click="fetchAttendances">Cari</v-btn>
-      </v-col>
-    </v-row>
+    <v-row no-gutters class="mb-2">
+  <v-col cols="3" class="pa-2">
+    <v-text-field v-model="searchNIK" label="Cari NIK" clearable></v-text-field>
+  </v-col>
+  <v-col cols="3" class="pa-2">
+    <v-select v-model="selectedLocation" label="Pilih Lokasi" :items="locations" clearable></v-select>
+  </v-col>
+  <v-col cols="2" class="pa-2">
+    <v-btn color="primary" @click="fetchAttendances">Cari</v-btn>
+  </v-col>
 
-    <!-- Filter -->
-    <!-- <v-row no-gutters>
-      <v-col cols="9">
+  <v-spacer></v-spacer>
 
-        <v-row >
-          <v-col cols="4" class="d-flex align-center">
-            <v-text-field v-model="searchNIK" label="Cari NIK" clearable></v-text-field>
-          </v-col>
-          
-          <v-col cols="4" class="d-flex align-center">
-            <v-select 
-              v-model="selectedLocation" 
-              label="Pilih Lokasi"
-              :items="locations" 
-              clearable>
-            </v-select>
+  <v-col cols="auto" class="pa-2 d-flex">
+    <BaseDialog
+        v-model="isAddAbsensiOpen"
+        title="Add Absensi"
+        buttonText="Add Absensi"
+        buttonColor="primary"
+        buttonVariant="tonal"
+        @closed="isAddAbsensiOpen = false"
+        >
+        <h2>Form Kehadiran</h2>
+        <br>
+        <BaseForm :fields="formFieldsAdd" v-model="formData" @submit="submitForm" />
+      </BaseDialog>
 
-          </v-col>
-
-
-          <v-col cols="4" class="d-flex align-center" style="margin-top: -20px;">
-            
-            <v-btn type="submit" color="primary">Submit</v-btn>
-          </v-col>
-
-        </v-row>
+    <!-- <v-btn color="primary" class="mr-2" @click="fetchAttendances">Add</v-btn> -->
+    <v-btn color="primary" @click="fetchAttendances">Export</v-btn>
+  </v-col>
+</v-row>
 
 
-      </v-col>
-
-      <v-col cols="3">
-        <v-row >
-          <v-col cols="6">
-            <BaseDialog
-            v-model="isAddAbsensiOpen"
-            title="Add Absensi"
-            buttonText="Add Absensi"
-            buttonColor="danger"
-            buttonVariant="tonal"
-            @closed="isAddAbsensiOpen = false"
-            >
-            <h2>Form Kehadiran</h2>
-            <br>
-            <BaseForm :fields="formFieldsAdd" v-model="formData" @submit="submitForm" />
-            </BaseDialog>
-          </v-col>
-
-          <v-col cols="6">
-            <BaseDialog
-            v-model="isDialogExporOpen"
-            title="Ekspor Absensi"
-            buttonText="Ekspor"
-            buttonColor="danger"
-            buttonVariant="tonal"
-            @closed="isDialogExporOpen = false"
-            >
-            <h2>Expor </h2>
-            <br>
-            <BaseForm :fields="formFieldsExpor" v-model="formDataExpor" @submit="submitFormExpor" />
-            </BaseDialog>
-
-        </v-col>
-
-        </v-row>
-      </v-col>
-    </v-row> -->
+    <v-select 
+          v-model="perPage"
+          :items="[1, 10, 50]" 
+          hide-details
+          dense
+          class="perpage-select"
+      >
+    </v-select>
 
     <!-- Tabel Kehadiran -->
     <v-table>
@@ -105,8 +68,8 @@
         <td>{{ item.taxpayer.name }}</td>
         <td>{{ item.project.project_name }}</td>
         <td>
-          <v-btn color="primary" @click="showDetail(item.id)">Show</v-btn>
-          <v-btn color="primary" @click="update(item.id)">Update</v-btn>
+          <v-btn color="primary" @click="showDetail(item.taxpayer.id)">Show</v-btn>
+          <v-btn color="primary" @click="update(item.taxpayer.nik)">Update</v-btn>
         </td>
       </tr>
       </tbody>
@@ -121,7 +84,7 @@
 import BaseDialog from "../../src/components/BaseDialog";
 import BaseForm from "../../src/components/BaseForm";
 
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, watchEffect } from "vue";
 import { useRouter } from "vue-router";
 import attendanceData from "../attendance_january_2025.js";
 
@@ -129,59 +92,52 @@ import { useAttendanceStore } from '../src/stores/attendanceStore'
 // import { useFetchStore } from '../src/stores/fetchStore'
 import { useLoading } from '../src/composables/useLoading'
 
-const attendanceStore = useAttendanceStore()
 const { isLoading, setLoading } = useLoading()
-
-const currentPage = ref(1);
+const attendanceStore = useAttendanceStore();
 const searchNIK = ref("");
 const selectedLocation = ref(null);
-const locations = ["cisauk", "vbi", "sumarecon bekasi"];
+const perPage = ref(10);
+const currentPage = ref(1);
+const locations = ["CV Mulyani Tbk", "vbi", "sumarecon bekasi"];
 const attendances = ref([]);
-const totalPages = ref(1);
+const totalPages = computed(() => Math.ceil(totalRecords.value / perPage.value));
+const totalRecords = ref(0); // Tambahkan total records
 
 
-setLoading(true)
-
-// onMounted(() => {
-//   setLoading(true);
-//   attendanceStore.fetchAttendances().then(() => {
-//     console.log("Data Attendances:", attendanceStore);
-//   }).catch(error => {
-//     console.error("Error fetching attendances:", error);
-//   }).finally(() => {
-//     setLoading(false);
-//   });
-// });
-
-// onMounted(() => {
-//   attendanceStore.fetchAttendances().then(() => {
-//     console.log("Data Kehadiran:", attendanceStore.attendances); // Cek di console
-//   }).finally(() => {
-//     setLoading(false);
-//   });
-// });
+const payload = computed(() => ({
+  nik: searchNIK.value,
+  project_name: selectedLocation.value,
+  per_page: perPage.value,
+  page: currentPage.value,
+}));
 
 const fetchAttendances = async () => {
-  console.log('searchNIK.value', searchNIK.value)
-  console.log('123.value', selectedLocation.value)
-  setLoading(true);
-  const response = await attendanceStore.fetchAttendances({
-    nik: searchNIK.value,
-    project_name: selectedLocation.value,
-    per_page: 10,
-    page: currentPage.value
-  });
+  console.log("Payload:", payload.value);
 
-  console.log('attendances.value', response.data)
-  console.log('attendances', response)
-
-  attendances.value = response.data;
-  totalPages.value = response.last_page;
-  setLoading(false);
+  const response = await attendanceStore.fetchAttendances(payload.value);
+  console.log("Attendances updated:12312312", response);
+  
+  if (response.data.length > 0) {
+    totalRecords.value = response.total; // Pastikan API mengembalikan total data
+    attendances.value = response.data; // Simpan hasil response ke variabel attendances
+    console.log("Attendances updated321:", attendances.value);
+    console.log("Attendances :", response);
+  } else {
+    console.warn("No data received from API");
+  }
 };
 
-onMounted(fetchAttendances);
+onMounted(() => {
+  fetchAttendances();
+});
 
+
+// Watch perubahan perPage
+watch(perPage, (newValue) => {
+  console.log("Per Page changed:", newValue);
+  console.log("Per Page changed:", newValue);
+  fetchAttendances(); // Fetch data baru saat perPage berubah
+});
 
 const getStatusText = (status) => {
   const statusMap = {
@@ -217,7 +173,7 @@ const formDataExpor = ref({
 const formFieldsExpor = [
   
   { label: "Tanggal", model: "picker", type: "text", inputType: "month", required: true },
-  { label: "Project", model: "project", type: "select", items: ["VBI", "Cisauk", "Sumarecon Bogor"], required: true },
+  { label: "Project", model: "project", type: "select", items: ["CV Mulyani Tbk", "Cisauk", "Sumarecon Bogor"], required: true },
 ];
 
 const submitForm = (data) => {
@@ -261,12 +217,27 @@ const getTotalHadir = (kehadiran) => {
   return kehadiran.filter(k => k.status === "Hadir").length;
 };
 
-// Filter data berdasarkan NIK dan lokasi
-// const filteredAttendance = computed(() => {
-//   return attendanceData.filter(item => {
-//     const matchNIK = searchNIK.value ? item.nik.includes(searchNIK.value) : true;
-//     const matchLocation = selectedLocation.value ? item.lokasi === selectedLocation.value : true;
-//     return matchNIK && matchLocation;
-//   });
-// });
 </script>
+
+
+
+<style scoped>
+.table-container {
+  position: relative;
+}
+
+.perpage-container {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.perpage-select {
+  width: 70px;
+  font-size: 12px;
+}
+</style>
