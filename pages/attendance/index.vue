@@ -17,23 +17,23 @@
     <v-select v-model="selectedLocation" label="Pilih Lokasi" :items="locations" clearable></v-select>
   </v-col>
   <v-col cols="2" class="pa-2">
-    <v-btn color="primary" @click="fetchAttendances">Cari</v-btn>
+    <v-btn color="primary" @click="submitForm">Cari</v-btn>
   </v-col>
 
   <v-spacer></v-spacer>
 
   <v-col cols="auto" class="pa-2 d-flex">
     <BaseDialog
-        v-model="isAddAbsensiOpen"
-        title="Add Absensi"
-        buttonText="Add Absensi"
+        v-model="isAddAttendanceOpen"
+        title="Add Attendance"
+        buttonText="Add Attendance"
         buttonColor="primary"
         buttonVariant="tonal"
-        @closed="isAddAbsensiOpen = false"
+        @closed="isAddAttendanceOpen = false"
         >
         <h2>Form Kehadiran</h2>
         <br>
-        <BaseForm :fields="formFieldsAdd" v-model="formData" @submit="submitForm" />
+        <BaseForm :fields="formFieldsAdd" v-model="formData" @submit="addAttendance" />
       </BaseDialog>
 
     <!-- <v-btn color="primary" class="mr-2" @click="fetchAttendances">Add</v-btn> -->
@@ -149,20 +149,19 @@ const getStatusText = (status) => {
 };
 
 
-
-
-const formData = ref({
-  tanggal: "",
-  project: "",
+const formData = computed(() => ({
+  year: "",
+  month: "",
+  project_id: "",
   file: null,
-});
+}));
+
 
 const formFieldsAdd = [
   
-  // { label: "Bulan & Tahun", model: "tanggal", type: "month-year", required: true },
-  { label: "Tanggal", model: "picker", type: "text", inputType: "month", required: true },
-  { label: "Project", model: "project", type: "select", items: ["VBI", "Cisauk", "Sumarecon Bogor"], required: true },
-  { label: "Upload File", model: "file", type: "file", required: true },
+  { label: "Tanggal", model: "picker", type: "text", inputType: "month", required: false },
+  { label: "Project", model: "project_id", type: "select", items: ["VBI", "PJ Rahayu", "Sumarecon Bogor"], required: false },
+  { label: "Upload File", model: "file", type: "file", required: false },
 ];
 
 const formDataExpor = ref({
@@ -173,7 +172,7 @@ const formDataExpor = ref({
 const formFieldsExpor = [
   
   { label: "Tanggal", model: "picker", type: "text", inputType: "month", required: true },
-  { label: "Project", model: "project", type: "select", items: ["CV Mulyani Tbk", "Cisauk", "Sumarecon Bogor"], required: true },
+  { label: "Project", model: "project", type: "select", items: ["CV Mulyani Tbk", "PJ Rahayu", "Sumarecon Bogor"], required: true },
 ];
 
 const submitForm = (data) => {
@@ -187,14 +186,39 @@ const submitFormExpor = (data) => {
 
 const selectedDetail = ref(null);
 // Fungsi menampilkan detail menggunakan dialog
-const isAddAbsensiOpen = ref(false);
+const isAddAttendanceOpen = ref(false);
 const isDialogExporOpen = ref(false);
 
 const router = useRouter();
 
-const addAttendance = (item) => {
-  selectedDetail.value = item;
-  isDialogExporOpen.value = true;
+const addAttendance = async (item) => {
+
+  // [formData.value.year, formData.value.month] = item.picker.split("-");
+  // formData.value.file = item.file
+  // formData.value.project_id = 1
+  // console.log('formDataformData',formData.value);  // Output: "2025"
+
+  // console.log("Payload:", formData);
+
+  const [year, month] = item.picker.split("-");
+
+  // Pastikan file adalah objek File
+  if (!(item.file instanceof File)) {
+    console.error("File tidak valid!", item.file);
+    return;
+  }
+
+  // Buat FormData untuk multipart/form-data
+  const formDataToSend = new FormData();
+  formDataToSend.append("year", year);
+  formDataToSend.append("month", month);
+  formDataToSend.append("file", item.file); // File harus objek File
+  formDataToSend.append("project_id", 1); // Pastikan ID benar
+
+  console.log("Payload:", formDataToSend);
+
+  const response = await attendanceStore.addAttendance(formDataToSend);
+  console.log('dataaaa', item.picker)
 };
 
 // Fungsi navigasi ke halaman show berdasarkan ID

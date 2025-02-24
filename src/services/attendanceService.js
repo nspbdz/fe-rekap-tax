@@ -11,7 +11,7 @@ export default {
 
   async DatatableAttendances(payload) {
     try {
-      return await api.doPost('attendances', payload) // Tambahkan payload
+      return await api.doPostDatatable('attendances', payload) // Tambahkan payload
     } catch (error) {
       throw error
     }
@@ -19,7 +19,7 @@ export default {
   
   async createAttendance(payload) {
     try {
-      return await api.doPost('attendances', payload)
+      return await api.doPostExcel('attendances', payload)
     } catch (error) {
       throw error
     }

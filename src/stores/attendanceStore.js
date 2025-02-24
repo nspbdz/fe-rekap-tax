@@ -41,7 +41,7 @@ export const useAttendanceStore = defineStore('attendance', {
       try {
         console.log('[Store] Adding attendance:', payload)
         const response = await attendanceService.createAttendance(payload)
-        this.items.push(response)
+        // this.items.push(response)
       } catch (error) {
         console.error('[Store] Adding Error:', error)
       } finally {

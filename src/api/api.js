@@ -21,6 +21,28 @@ class Api {
     }
   }
 
+  async doPostDatatable(url, body = {}) {
+    try {
+      const fullUrl = `${this.apiBase}/${url}`
+      console.log(`[POST] Request URL:`, fullUrl)
+      console.log(`[POST] Request Body:`, body)
+  
+      const response = await ofetch(fullUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body) // Ubah body menjadi JSON
+      })
+  
+      console.log(`[POST] Response:`, response)
+      return response
+    } catch (error) {
+      console.error(`[POST] Error:`, error)
+      throw error
+    }
+  }
+
   async doPost(url, body = {}) {
     try {
       const fullUrl = `${this.apiBase}/${url}`
@@ -33,6 +55,30 @@ class Api {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(body) // Ubah body menjadi JSON
+      })
+  
+      console.log(`[POST] Response:`, response)
+      return response
+    } catch (error) {
+      console.error(`[POST] Error:`, error)
+      throw error
+    }
+  }
+
+  async doPostExcel(url, body = {}) {
+    try {
+      const fullUrl = `${this.apiBase}/${url}/store-excel`
+      console.log(`[POST] Request URL:`, fullUrl)
+      console.log(`[POST] Request Body:`, body)
+  
+      const response = await ofetch(fullUrl, {
+        method: 'POST',
+        body: body,
+        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        // body: JSON.stringify(body) // Ubah body menjadi JSON
       })
   
       console.log(`[POST] Response:`, response)
