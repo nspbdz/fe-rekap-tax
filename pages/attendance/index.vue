@@ -193,14 +193,7 @@ const router = useRouter();
 
 const addAttendance = async (item) => {
 
-  // [formData.value.year, formData.value.month] = item.picker.split("-");
-  // formData.value.file = item.file
-  // formData.value.project_id = 1
-  // console.log('formDataformData',formData.value);  // Output: "2025"
-
-  // console.log("Payload:", formData);
-
-  const [year, month] = item.picker.split("-");
+  const [year, month] = item.picker.split("-").map(Number);
 
   // Pastikan file adalah objek File
   if (!(item.file instanceof File)) {
@@ -215,9 +208,14 @@ const addAttendance = async (item) => {
   formDataToSend.append("file", item.file); // File harus objek File
   formDataToSend.append("project_id", 1); // Pastikan ID benar
 
-  console.log("Payload:", formDataToSend);
+  // Kirim ke `addAttendance`
+  // await addAttendance(formDataToSend);
 
   const response = await attendanceStore.addAttendance(formDataToSend);
+
+  console.log("Payload:", formDataToSend);
+
+  // const response = await attendanceStore.addAttendance(formDataToSend);
   console.log('dataaaa', item.picker)
 };
 

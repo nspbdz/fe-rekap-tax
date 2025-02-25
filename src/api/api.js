@@ -65,20 +65,15 @@ class Api {
     }
   }
 
-  async doPostExcel(url, body = {}) {
+  async doPostExcel(url, body) {
     try {
       const fullUrl = `${this.apiBase}/${url}/store-excel`
       console.log(`[POST] Request URL:`, fullUrl)
-      console.log(`[POST] Request Body:`, body)
+      console.log(`Excel payload:`, body)
   
       const response = await ofetch(fullUrl, {
         method: 'POST',
-        body: body,
-        headers: { "Content-Type": "multipart/form-data" },
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        // body: JSON.stringify(body) // Ubah body menjadi JSON
+        body: body, // Kirim langsung FormData
       })
   
       console.log(`[POST] Response:`, response)
@@ -88,6 +83,7 @@ class Api {
       throw error
     }
   }
+  
   
 }
 
