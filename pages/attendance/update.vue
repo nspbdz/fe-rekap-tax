@@ -20,7 +20,7 @@
 
   <!-- Menampilkan Data -->
   <v-card >
-      <v-card-title>{{ dataWorker.nama }} (NIK: {{ dataWorker.nik }})</v-card-title>
+      <v-card-title>{{ dataWorker?.taxpayer.name }} (NIK: {{ dataWorker?.taxpayer.nik }})</v-card-title>
   </v-card>
  
    
@@ -63,8 +63,11 @@
 <script setup>
 import { ref } from "vue";
 import { useRoute } from "vue-router";
+import { useAttendanceStore } from '../src/stores/attendanceStore'
 import attendanceData from "../attendance_january_2025.js";
+import { onMounted } from 'vue'
 
+const store = useAttendanceStore()
 const route = useRoute();
 const id = parseInt(route.query.id);
 console.log('id', id)
@@ -72,6 +75,30 @@ const selectedMonth = ref(null);
 const selectedYear = ref(null);
 const filteredData = ref(null);
 const isFiltered = ref(false);
+const dataWorker = ref(null);
+
+
+
+onMounted(async () => {
+  console.log('Sebelum fetch:', store.attendanceList); // Cek data sebelum fetch
+
+  if (!store.attendanceList.length) {
+    await store.fetchAttendances({ page: 1 }); // Fetch ulang jika kosong
+    console.log('Data setelah fetch:', store.attendanceList);
+  }
+
+  // Pastikan ID valid sebelum mengambil data
+  if (id !== undefined && store.attendanceList[id]) {
+    dataWorker.value = store.attendanceList[id]; // Jangan redeklarasi, cukup update value
+    console.log('Data Worker:', dataWorker.value);
+  } else {
+    console.warn('Data tidak ditemukan untuk ID:', id);
+    dataWorker.value = 'Data tidak ditemukan'; // Gunakan string sebagai fallback
+  }
+});
+
+
+console.log('1111233212312:', dataWorker) // Output taxpayer dari id 1
 
 // Opsi bulan dan tahun
 const months = [
@@ -90,7 +117,7 @@ const months = [
 ];
 
 const years = ["2024", "2025"];
-const dataWorker = attendanceData.find(item => item.id === id);
+// const dataWorker = attendanceData.find(item => item.id === id);
 console.log('dataWorker', dataWorker)
 // Opsi status kehadiran
 const attendanceStatuses = ["Hadir", "Tidak Hadir", "Izin"];

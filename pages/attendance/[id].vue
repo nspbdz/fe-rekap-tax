@@ -46,6 +46,30 @@ const selectedYear = ref(null);
 const filteredData = ref(null);
 const isFiltered = ref(false);
 
+const filterData = async () => {
+  console.log("Payload:", payload.value);
+
+  const payload = {
+    month :selectedMonth,
+    year : selectedYear,
+    id: id,
+  }
+
+  // selectedMonth.value || !selectedYear.value
+
+  const response = await attendanceStore.showAttendance(payload.value);
+  console.log("Attendances updated:12312312", response);
+  
+  if (response.data.length > 0) {
+    totalRecords.value = response.total; // Pastikan API mengembalikan total data
+    attendances.value = response.data; // Simpan hasil response ke variabel attendances
+    console.log("Attendances updated321:", attendances.value);
+    console.log("Attendances :", response);
+  } else {
+    console.warn("No data received from API");
+  }
+};
+
 // Opsi bulan dan tahun
 const months = [
   { title: "Januari", value: "01" },
@@ -65,7 +89,7 @@ const months = [
 const years = ["2024", "2025", "2026"];
 
 // Fungsi untuk memfilter data berdasarkan bulan & tahun
-const filterData = () => {
+const filterDataOld = () => {
   console.log('masukkk')
   if (!selectedMonth.value || !selectedYear.value) return;
   const data = attendanceData.find(item => item.id === id);

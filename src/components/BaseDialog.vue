@@ -1,9 +1,11 @@
 <template>
     <v-dialog v-model="isOpen" max-width="500">
       <template v-slot:activator="{ props }">
-        <v-btn v-bind="props" :color="buttonColor" :variant="buttonVariant" class="mr-2">
-          {{ buttonText }}
-        </v-btn>
+        <div class="pa-3">
+          <v-btn v-bind="props" :color="buttonColor" :variant="buttonVariant" >
+            {{ buttonText }}
+          </v-btn>
+        </div>
       </template>
   
       <v-card>

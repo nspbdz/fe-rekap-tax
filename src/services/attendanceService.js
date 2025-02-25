@@ -9,6 +9,14 @@ export default {
     }
   },
 
+  async detailAttendance(payload) {
+    try {
+      return await api.doPostDetail('attendances', payload)
+    } catch (error) {
+      throw error
+    }
+  },
+
   async DatatableAttendances(payload) {
     try {
       return await api.doPostDatatable('attendances', payload) // Tambahkan payload
@@ -23,5 +31,16 @@ export default {
     } catch (error) {
       throw error
     }
+  },
+
+  async exportAttendance(payload, urlParam) {
+    try {
+      console.log('aasd', urlParam)
+      return await api.doPostExcel('attendances', payload, urlParam)
+    } catch (error) {
+      throw error
+    }
   }
+
+
 }

@@ -11,10 +11,10 @@ class Api {
   async doGet(url, params) {
     try {
       const fullUrl = `${this.apiBase}/${url}`
-      console.log(`[GET] Request URL:`, fullUrl)
+      console.logs(`[GET] Request URL:`, fullUrl)
       const response = await ofetch(fullUrl, { method: 'GET', params })
       console.log(`[GET] Response:`, response)
-      return response
+    return response
     } catch (error) {
       console.error(`[GET] Error:`, error)
       throw error
@@ -22,6 +22,28 @@ class Api {
   }
 
   async doPostDatatable(url, body = {}) {
+    try {
+      const fullUrl = `${this.apiBase}/${url}`
+      console.log(`[POST] Request URL:`, fullUrl)
+      console.log(`[POST] Request Body:`, body)
+  
+      const response = await ofetch(fullUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body) // Ubah body menjadi JSON
+      })
+  
+      console.log(`[POST] Response:`, response)
+      return response
+    } catch (error) {
+      console.error(`[POST] Error:`, error)
+      throw error
+    }
+  }
+
+  async doPostDetail(url, body = {}) {
     try {
       const fullUrl = `${this.apiBase}/${url}`
       console.log(`[POST] Request URL:`, fullUrl)
@@ -65,9 +87,9 @@ class Api {
     }
   }
 
-  async doPostExcel(url, body) {
+  async doPostExcel(url, body, urlParam) {
     try {
-      const fullUrl = `${this.apiBase}/${url}/store-excel`
+      const fullUrl = `${this.apiBase}/${url}/${urlParam}`
       console.log(`[POST] Request URL:`, fullUrl)
       console.log(`Excel payload:`, body)
   

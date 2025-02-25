@@ -2,12 +2,6 @@
     <p v-if="isLoading">Loading...</p>
   <v-container v-else>
     <h2>Daftar Kehadiran</h2>
-
-    <!-- Tombol Kembali -->
-    <div >
-
-    <v-btn color="secondary" @click="goBack">Kembali</v-btn>
-    </div>
     <br>
     <v-row no-gutters class="mb-2">
   <v-col cols="3" class="pa-2">
@@ -16,7 +10,7 @@
   <v-col cols="3" class="pa-2">
     <v-select v-model="selectedLocation" label="Pilih Lokasi" :items="locations" clearable></v-select>
   </v-col>
-  <v-col cols="2" class="pa-2">
+  <v-col cols="2" class="pa-5">
     <v-btn color="primary" @click="submitForm">Cari</v-btn>
   </v-col>
 
@@ -36,8 +30,22 @@
         <BaseForm :fields="formFieldsAdd" v-model="formData" @submit="addAttendance" />
       </BaseDialog>
 
+      <BaseDialog
+        v-model="isDialogExporOpen"
+        title="Ekspor Absensi"
+        buttonText="Ekspor"
+        buttonColor="primary"
+        buttonVariant="tonal"
+        @closed="isDialogExporOpen = false"
+        >
+        <h2>Expor </h2>
+        <br>
+        <BaseForm :fields="formFieldsExpor" v-model="formDataExpor" @submit="submitFormExpor" />
+      </BaseDialog>
+
+
     <!-- <v-btn color="primary" class="mr-2" @click="fetchAttendances">Add</v-btn> -->
-    <v-btn color="primary" @click="fetchAttendances">Export</v-btn>
+    <!-- <v-btn color="primary" @click="fetchAttendances">Export</v-btn> -->
   </v-col>
 </v-row>
 
@@ -69,7 +77,7 @@
         <td>{{ item.project.project_name }}</td>
         <td>
           <v-btn color="primary" @click="showDetail(item.taxpayer.id)">Show</v-btn>
-          <v-btn color="primary" @click="update(item.taxpayer.nik)">Update</v-btn>
+          <v-btn color="primary" @click="update(item.taxpayer.id)">Update</v-btn>
         </td>
       </tr>
       </tbody>
@@ -179,8 +187,15 @@ const submitForm = (data) => {
   console.log("Data tersimpan:", data);
 };
 
-const submitFormExpor = (data) => {
-  console.log("Data tersimpan:", data);
+const submitFormExpor = async (item) => {
+  console.log("Data tersimpan:", item);
+
+  const config = useRuntimeConfig();
+  const apiBase = config.public.BACKEND_SERVICE; // Ambil dari runtimeConfig
+  const urls = `${apiBase}/v1/attendances/export/?pr=1&attd=${item.picker}`;
+  console.log("Payload:", urls);
+  window.open(urls, "_blank");
+
 };
 
 
