@@ -11,7 +11,7 @@ export default {
 
   async detailAttendance(payload) {
     try {
-      return await api.doPostDetail('attendances', payload)
+      return await api.doPostDetail('attendances/detail', payload)
     } catch (error) {
       throw error
     }
@@ -40,7 +40,15 @@ export default {
     } catch (error) {
       throw error
     }
-  }
+  },
+
+  async updateAttendance(payload) {
+    try {
+      return await api.doUpdate('attendances/update', payload)
+    } catch (error) {
+      throw error
+    }
+  },
 
 
 }

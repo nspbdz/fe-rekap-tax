@@ -1,5 +1,16 @@
 <template>
   <v-container>
+
+    <v-dialog v-model="showError" max-width="400">
+      <v-card>
+        <v-card-title class="text-h5 text-red">Error</v-card-title>
+        <v-card-text>{{ errorMessage }}</v-card-text>
+        <v-card-actions>
+          <v-btn color="red" text @click="showError = false">Tutup</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-btn @click="$router.push('/attendance')" color="secondary">Kembali</v-btn>
     <h2>Update Kehadiran</h2>
 
@@ -35,14 +46,14 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(record, index) in filteredData.kehadiran" :key="index">
+        <tr v-for="(record, index) in filteredData[0].kehadiran" :key="index">
           <td>{{ index + 1 }}</td>
           <td>{{ record.tanggal }}</td>
           <td>
             <v-radio-group v-model="record.status" inline>
-              <v-radio label="Hadir" value="Hadir"></v-radio>
-              <v-radio label="Tidak Hadir" value="Tidak Hadir"></v-radio>
-              <v-radio label="Izin" value="Izin"></v-radio>
+              <v-radio label="Hadir" value="1"></v-radio>
+              <v-radio label="Tidak Hadir" value="2"></v-radio>
+              <v-radio label="Izin" value="3"></v-radio>
             </v-radio-group>
           </td>
         </tr>
@@ -76,7 +87,8 @@ const selectedYear = ref(null);
 const filteredData = ref(null);
 const isFiltered = ref(false);
 const dataWorker = ref(null);
-
+const showError = ref(false); // Untuk menampilkan popup error
+const errorMessage = ref(""); // Menyimpan pesan error
 
 
 onMounted(async () => {
@@ -123,40 +135,56 @@ console.log('dataWorker', dataWorker)
 const attendanceStatuses = ["Hadir", "Tidak Hadir", "Izin"];
 
 // Fungsi untuk memfilter data berdasarkan bulan & tahun
-const filterData = () => {
-  console.log('masukkk')
-  console.log('id', id)
-  if (!selectedMonth.value || !selectedYear.value) return;
-  const data = attendanceData.find(item => item.id === id);
 
-  if (data) {
-    // Filter kehadiran berdasarkan bulan & tahun
-    const filteredKehadiran = data.kehadiran.filter(record => {
-      return record.tanggal.startsWith(`${selectedYear.value}-${selectedMonth.value}`);
-    });
+const payload = computed(() => ({
+  month: selectedMonth.value,
+  year: selectedYear.value,
+  id,
+  project_id: dataWorker.value.project_id,
+}));
 
-    // Jika ada data, simpan ke `filteredData`, jika tidak, kosongkan
-    filteredData.value = filteredKehadiran.length ? { ...data, kehadiran: filteredKehadiran } : null;
-  } else {
-    filteredData.value = null;
+
+const filterData = async () => {
+  try {
+    const response = await store.detailAttendance(payload.value);
+    console.log('responseresponseresponse', response);
+
+    if (!response.data || Object.keys(response.data).length === 0) {
+      errorMessage.value = "Data tidak ditemukan untuk bulan & tahun ini!";
+      showError.value = true; // Tampilkan popup
+      isFiltered.value = false;
+      return;
+    }
+
+    filteredData.value = response.data;
+    isFiltered.value = true;
+  } catch (error) {
+    errorMessage.value = "Terjadi kesalahan saat mengambil data: " + error.message;
+    showError.value = true; // Tampilkan popup
+    isFiltered.value = false;
+  }
+};
+
+const submitData = async () => {
+
+  console.log('masukkk');
+  console.log('id', id);
+
+  if (!filteredData.value || !filteredData.value[0]?.kehadiran) {
+    console.error("Data tidak ditemukan atau kosong!", filteredData.value);
+    return;
   }
 
-  isFiltered.value = true;
-};
-
-const submitData = () => {
-  console.log('masukkk')
-  console.log('id', id)
-
-
-  const formattedData = filteredData.value.kehadiran.map(record => ({
-    nik: filteredData.value.nik,  // Ambil NIK dari filteredData
-    tanggal: record.tanggal,      // Ambil tanggal kehadiran
-    status: record.status || "Hadir",  // Default kehadiran jika kosong
+  const formattedData = filteredData.value[0].kehadiran.map(record => ({
+    taxpayer_id: filteredData.value[0].id,  // Ambil NIK dari filteredData
+    attendance_date: record.tanggal,         // Ambil tanggal kehadiran
+    status: record.status || "Hadir", // Default kehadiran jika kosong
   }));
-  console.log("Data yang disimpan:", formattedData);
 
+  const response = await store.updateAttendance({ data: formattedData });
+  console.log('responseresponseresponse', response)
 
-  isFiltered.value = true;
 };
+
+
 </script>

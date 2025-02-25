@@ -9,6 +9,7 @@ export const useAttendanceStore = defineStore('attendance', {
 
   getters: {
     items: (state) => state.attendances,
+    data: (state) => state.attendances,
     attendanceList: (state) => state.attendances?.data || [] // Ambil hanya array data dari response
   },
   
@@ -36,6 +37,19 @@ export const useAttendanceStore = defineStore('attendance', {
       }
     },
 
+    async updateAttendance(payload) {
+      this.loading = true
+      try {
+        console.log('[Store] Adding attendance:', payload)
+        const response = await attendanceService.updateAttendance(payload)
+        // this.items.push(response)
+      } catch (error) {
+        console.error('[Store] Adding Error:', error)
+      } finally {
+        this.loading = false
+      }
+    },
+
     async addAttendance(payload) {
       this.loading = true
       try {
@@ -54,7 +68,16 @@ export const useAttendanceStore = defineStore('attendance', {
       try {
         console.log('[Store] Adding attendance:', payload)
         const response = await attendanceService.detailAttendance(payload)
-        // this.items.push(response)
+        // this.data.push(response)
+        if (response?.data) {
+          this.attendances = response
+          return response  // Tambahkan return agar bisa digunakan di FE
+        } else {
+          console.warn('[Store] API response does not contain data:', response)
+          return [] // Kembalikan array kosong jika tidak ada data
+        }
+
+
       } catch (error) {
         console.error('[Store] Adding Error:', error)
       } finally {

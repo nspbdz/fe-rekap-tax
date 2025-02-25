@@ -105,6 +105,25 @@ class Api {
       throw error
     }
   }
+
+  async doUpdate(url, body) {
+    try {
+      const fullUrl = `${this.apiBase}/${url}`
+      console.log(`[POST] Request URL:`, fullUrl)
+      console.log(`Excel payload:`, body)
+  
+      const response = await ofetch(fullUrl, {
+        method: 'POST',
+        body: body, // Kirim langsung FormData
+      })
+  
+      console.log(`[POST] Response:`, response)
+      return response
+    } catch (error) {
+      console.error(`[POST] Error:`, error)
+      throw error
+    }
+  }
   
   
 }
