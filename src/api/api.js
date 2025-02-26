@@ -11,7 +11,7 @@ class Api {
   async doGet(url, params) {
     try {
       const fullUrl = `${this.apiBase}/${url}`
-      console.logs(`[GET] Request URL:`, fullUrl)
+      console.log(`[GET] Request URL:`, fullUrl)
       const response = await ofetch(fullUrl, { method: 'GET', params })
       console.log(`[GET] Response:`, response)
     return response

@@ -1,8 +1,5 @@
 <template>
     <p v-if="isLoading"> Loading...</p>
-    
-    
-    
     <v-container v-else>
     
         <v-dialog v-model="isDeleteDialogOpen" max-width="400px">
@@ -156,9 +153,9 @@ const formFieldsAdd = [
 ];
 
 const formFieldsUpdate = [
-    { label: "ID", model: "id", type: "hidden", required: true }, // Pastikan ID ada di form
-    { label: "Nama Proyek", model: "project_name", type: "text", required: true },
-    { label: "Lokasi", model: "project_location", type: "text", required: true },
+  { label: "Nama Proyek", model: "project_name", type: "text", required: true },
+  { label: "Lokasi", model: "project_location", type: "text", required: true },
+  { label: "ID", model: "id", type: "hidden", required: true }, // Pastikan ID ada di form
 ];
 
 
@@ -268,4 +265,10 @@ const handleDeleteConfirmed = async () => {
     width: 90px;
     font-size: 12px;
 }
+
+input[type="hidden"] {
+  display: none !important;
+}
+
 </style>
+

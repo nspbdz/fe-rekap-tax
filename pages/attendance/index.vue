@@ -165,6 +165,7 @@ const formFieldsExpor = [
 ];
 
 const submitForm = (data) => {
+    fetchAttendances();
     console.log("Data tersimpan:", data);
 };
 
