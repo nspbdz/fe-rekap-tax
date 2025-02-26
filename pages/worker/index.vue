@@ -29,7 +29,12 @@
                 <v-text-field v-model="searchNIK" label="Cari Nik" clearable></v-text-field>
             </v-col>
             <v-col cols="3" class="pa-2">
-                <v-text-field v-model="projectLocation" label="Cari Lokasi" clearable></v-text-field>
+                <v-autocomplete v-model="projectLocation" :items="locations" item-title="project_name"
+                    item-value="id"
+                    label="Cari Lokasi" clearable @update:model-value="selectLocation" >
+                </v-autocomplete>
+    
+                <!-- <v-text-field v-model="projectLocation" label="Cari Lokasi" clearable></v-text-field> -->
             </v-col>
             <v-col cols="2" class="pa-5">
                 <v-btn color="primary" @click="submitForm">Cari</v-btn>
@@ -55,7 +60,7 @@
                     <th>NIK</th>
                     <th>Status Pernikahan</th>
                     <th>Total Pendapatan Bulanan</th>
-                    <th>Tempat Proyek</th>
+                    <th>Nama Proyek</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -78,45 +83,6 @@
     
         <v-pagination v-model="currentPage" :length="totalPages" @update:modelValue="fetchWorkers"></v-pagination>
     
-    
-        <!--     
-                    <v-row no-gutters>
-                        <v-col cols="7">
-                
-                        </v-col>
-                
-                        <v-col cols="5">
-                            <v-row justify="end">
-                                <v-col cols="auto">
-                                    <BaseDialog v-model="isAddWorkerExcellOpen" title="" buttonText="Add Pekerja Excel" buttonColor="danger" buttonVariant="tonal" @closed="isAddWorkerExcellOpen = false">
-                                        <h3>Tambah Pekerja By Excel</h3>
-                                        <br>
-                                        <h5> Sample untuk menambah Pekerja File.xslx </h5>
-                                        <br>
-                
-                                        <BaseForm :fields="formFieldsAdd" v-model="formData" @submit="submitForm" />
-                                    </BaseDialog>
-                                </v-col>
-                
-                
-                
-                                <v-col cols="auto">
-                
-                                    <BaseDialog v-model="iseditMonthlyIncomeOpen" title="" buttonText="Edit Income Bulanan" buttonColor="danger" buttonVariant="tonal" @closed="iseditMonthlyIncomeOpen = false">
-                                        <h2>Edit Pendapatan Bulanan Pekerja Pekerja By Excel</h2>
-                                        <br>
-                                        <h5> Sample untuk Edit Pendapatan Bulanan Pekerja File.xslx </h5>
-                                        <br>
-                                        <BaseForm :fields="formFieldsEdit" v-model="formDataEdit" @submit="submitForm" />
-                                    </BaseDialog>
-                                </v-col>
-                
-                
-                
-                            </v-row>
-                        </v-col>
-                    </v-row> -->
-    
         <br>
         <br>
     
@@ -124,85 +90,85 @@
         <!-- <v-row no-gutters> -->
     
         <!-- <v-col cols="7">
-                    
-                            <v-row >
-                              <v-col cols="4">
-                                <v-text-field v-model="searchNIK" label="Cari NIK" clearable></v-text-field>
-                              </v-col>
-                              
-                              <v-col cols="4">
-                                <v-select 
-                                  v-model="selectedLocation" 
-                                  label="Pilih Lokasi"
-                                  :items="locations" 
-                                  clearable>
-                                </v-select>
-                    
-                              </v-col>
-                    
-                    
-                              <v-col cols="4">
-                                <div>
-                                  <v-btn type="submit" color="primary">Submit</v-btn>
-                                </div>
-                              </v-col>
-                    
-                            </v-row>
-                    
-                    
-                          </v-col> -->
+                        
+                                <v-row >
+                                  <v-col cols="4">
+                                    <v-text-field v-model="searchNIK" label="Cari NIK" clearable></v-text-field>
+                                  </v-col>
+                                  
+                                  <v-col cols="4">
+                                    <v-select 
+                                      v-model="selectedLocation" 
+                                      label="Pilih Lokasi"
+                                      :items="locations" 
+                                      clearable>
+                                    </v-select>
+                        
+                                  </v-col>
+                        
+                        
+                                  <v-col cols="4">
+                                    <div>
+                                      <v-btn type="submit" color="primary">Submit</v-btn>
+                                    </div>
+                                  </v-col>
+                        
+                                </v-row>
+                        
+                        
+                              </v-col> -->
     
         <!-- <v-col cols="5">
-                
-                            <v-row justify="end">
-                                <v-col cols="auto">
-                                    <v-btn color="primary" @click="addWorker()">
-                                        Add Pekerja
-                                    </v-btn>
-                                </v-col>
-                                <v-col cols="auto">
-                                    <BaseDialog v-model="isDialogExporOpen" title="Ekspor Pekerja dan Pajak" buttonText="Ekspor" buttonColor="danger" buttonVariant="tonal" @closed="isDialogExporOpen = false">
-                                        <h2>Expor </h2>
-                                        <br>
-                                        <BaseForm :fields="formFieldsExpor" v-model="formDataExpor" @submit="submitFormExpor" />
-                                    </BaseDialog>
-                                </v-col>
-                
-                            </v-row>
-                
-                        </v-col> -->
+                    
+                                <v-row justify="end">
+                                    <v-col cols="auto">
+                                        <v-btn color="primary" @click="addWorker()">
+                                            Add Pekerja
+                                        </v-btn>
+                                    </v-col>
+                                    <v-col cols="auto">
+                                        <BaseDialog v-model="isDialogExporOpen" title="Ekspor Pekerja dan Pajak" buttonText="Ekspor" buttonColor="danger" buttonVariant="tonal" @closed="isDialogExporOpen = false">
+                                            <h2>Expor </h2>
+                                            <br>
+                                            <BaseForm :fields="formFieldsExpor" v-model="formDataExpor" @submit="submitFormExpor" />
+                                        </BaseDialog>
+                                    </v-col>
+                    
+                                </v-row>
+                    
+                            </v-col> -->
         <!-- </v-row> -->
     
         <!-- Tabel Kehadiran -->
         <!-- <v-table>
-                        <thead>
-                            <tr>
-                                <th>Nama Penerima</th>
-                                <th>NIK</th>
-                                <th>Status Pernikahan</th>
-                                <th>Total Pendapatan Bulanan</th>
-                                <th>Tempat Proyek</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="(item, index) in filteredAttendance" :key="index">
-                                <td>{{ item.nama }}</td>
-                                <td>{{ item.nik }}</td>
-                                <td>{{ item.statusPtkp }}</td>
-                                <td>{{ item.penghasilan }}</td>
-                                <td>{{ item.lokasiProyek }}</td>
-                                <td>
-                                    <v-btn color="primary" @click="showDetail(item.id)">
-                                        Show
-                                    </v-btn>
-                                    <v-btn color="primary" @click="update(item.id)">
-                                        Update
-                                    </v-btn>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </v-table> -->
+                            <thead>
+                                <tr>
+                                    <th>Nama Penerima</th>
+                                    <th>NIK</th>
+                                    <th>Status Pernikahan</th>
+                                    <th>Total Pendapatan Bulanan</th>
+                                    <th>Tempat Proyek</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item, index) in filteredAttendance" :key="index">
+                                    <td>{{ item.nama }}</td>
+                                    <td>{{ item.nik }}</td>
+                                    <td>{{ item.statusPtkp }}</td>
+                                    <td>{{ item.penghasilan }}</td>
+                                    <td>{{ item.lokasiProyek }}</td>
+                                    <td>
+                                        <v-btn color="primary" @click="showDetail(item.id)">
+                                            Show
+                                        </v-btn>
+                                        <v-btn color="primary" @click="update(item.id)">
+                                            Update
+                                        </v-btn>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </v-table> -->
     </v-container>
 </template>
 
@@ -210,6 +176,7 @@
 import BaseDialog from "../../src/components/BaseDialog.vue";
 import BaseForm from "../../src/components/BaseForm.vue";
 import { useWorkerStore } from '../src/stores/workerStore'
+import { useProjectStore } from '../src/stores/projectStore'
 import { useLoading } from '../src/composables/useLoading'
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
@@ -219,6 +186,7 @@ const router = useRouter();
 
 const { isLoading, setLoading } = useLoading()
 const workerStore = useWorkerStore();
+const projectStore = useProjectStore();
 const projectName = ref("");
 const projectLocation = ref("");
 const perPage = ref(10);
@@ -232,12 +200,34 @@ const isDeleteDialogOpen = ref(false);
 const projectToDelete = ref(null);
 const showError = ref(false);
 
+const selectedDetail = ref(null);
+const isAddAWorkerOpen = ref(false);
+const isDialogExporOpen = ref(false);
+const isAddWorkerExcellOpen = ref(false);
+const iseditMonthlyIncomeOpen = ref(false);
+const searchNIK = ref("");
+const selectedLocation = ref(null);
+const locations = ref([])
+
+
 const payload = computed(() => ({
-    project_name: projectName.value,
-    project_location: projectLocation.value,
+    nik: searchNIK.value,
+    project_id: projectLocation.value,
     per_page: perPage.value,
     page: currentPage.value,
 }));
+
+const fetchLocations = async () => {
+    try {
+        const response = await projectStore.fetchProjectLocation(payload.value);
+        console.log("location", response.data);
+
+        locations.value = response.data; // Simpan hasil response ke variabel projects
+    } catch (error) {
+        console.error('Error fetching locations:', error)
+    }
+}
+
 
 const fetchWorkers = async () => {
     console.log("Payload:", payload.value);
@@ -256,6 +246,7 @@ const fetchWorkers = async () => {
 };
 
 onMounted(() => {
+    fetchLocations();
     fetchWorkers();
 });
 
@@ -310,25 +301,12 @@ const formFieldsExpor = [
 
 
 const submitForm = (data) => {
-    fetchProjects();
+    fetchWorkers();
 };
 
 const submitFormExpor = (data) => {
     console.log("Data tersimpan:", data);
 };
-
-
-const selectedDetail = ref(null);
-// Fungsi menampilkan detail menggunakan dialog
-const isAddAWorkerOpen = ref(false);
-const isDialogExporOpen = ref(false);
-const isAddWorkerExcellOpen = ref(false);
-const iseditMonthlyIncomeOpen = ref(false);
-
-
-const searchNIK = ref("");
-const selectedLocation = ref(null);
-const locations = ["cisauk", "vbi", "sumarecon bekasi"];
 
 
 const addAttendance = (item) => {

@@ -14,6 +14,27 @@ export const useProjectStore = defineStore('project', {
   },
 
   actions: {
+    
+    async fetchProjectLocation() {
+      this.loading = true
+      try {
+        const response = await projectService.dropdownProject()
+
+        if (response?.data) {
+          this.projects = response
+          return response
+        } else {
+          console.warn('[Store] API response does not contain data:', response)
+          return []
+        }
+      } catch (error) {
+        console.error('[Store] Fetching Error:', error)
+        return []
+      } finally {
+        this.loading = false
+      }
+    },
+
     async fetchProjects(payload) {
       this.loading = true
       try {

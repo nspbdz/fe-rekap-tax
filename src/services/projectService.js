@@ -1,6 +1,15 @@
 import api from '../api/api'
 
 export default {
+
+    async dropdownProject() {
+        try {
+          return await api.doPost('projects/dropdown' )
+        } catch (error) {
+          throw error
+        }
+    },
+      
   async getProjects() {
     try {
       return await api.doGet('projects')
