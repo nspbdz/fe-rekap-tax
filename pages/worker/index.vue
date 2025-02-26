@@ -29,9 +29,7 @@
                 <v-text-field v-model="searchNIK" label="Cari Nik" clearable></v-text-field>
             </v-col>
             <v-col cols="3" class="pa-2">
-                <v-autocomplete v-model="projectLocation" :items="locations" item-title="project_name"
-                    item-value="id"
-                    label="Cari Lokasi" clearable @update:model-value="selectLocation" >
+                <v-autocomplete v-model="projectLocation" :items="locations" item-title="project_name" item-value="id" label="Cari Lokasi" clearable @update:model-value="selectLocation">
                 </v-autocomplete>
     
                 <!-- <v-text-field v-model="projectLocation" label="Cari Lokasi" clearable></v-text-field> -->
@@ -73,6 +71,9 @@
                     <td>{{ item.penghasilan }}</td>
                     <td>{{ item.project.project_name }}</td>
                     <td>
+                        <v-btn color="primary" @click="showDetail(item.id)">
+                            Show
+                        </v-btn>
                         <v-btn color="primary" @click="openUpdateDialog(item)">Update</v-btn>
                         <v-btn color="red" @click="openDeleteDialog(item)">Delete</v-btn>
     
@@ -90,85 +91,85 @@
         <!-- <v-row no-gutters> -->
     
         <!-- <v-col cols="7">
-                        
-                                <v-row >
-                                  <v-col cols="4">
-                                    <v-text-field v-model="searchNIK" label="Cari NIK" clearable></v-text-field>
-                                  </v-col>
-                                  
-                                  <v-col cols="4">
-                                    <v-select 
-                                      v-model="selectedLocation" 
-                                      label="Pilih Lokasi"
-                                      :items="locations" 
-                                      clearable>
-                                    </v-select>
-                        
-                                  </v-col>
-                        
-                        
-                                  <v-col cols="4">
-                                    <div>
-                                      <v-btn type="submit" color="primary">Submit</v-btn>
-                                    </div>
-                                  </v-col>
-                        
-                                </v-row>
-                        
-                        
-                              </v-col> -->
+                            
+                                    <v-row >
+                                      <v-col cols="4">
+                                        <v-text-field v-model="searchNIK" label="Cari NIK" clearable></v-text-field>
+                                      </v-col>
+                                      
+                                      <v-col cols="4">
+                                        <v-select 
+                                          v-model="selectedLocation" 
+                                          label="Pilih Lokasi"
+                                          :items="locations" 
+                                          clearable>
+                                        </v-select>
+                            
+                                      </v-col>
+                            
+                            
+                                      <v-col cols="4">
+                                        <div>
+                                          <v-btn type="submit" color="primary">Submit</v-btn>
+                                        </div>
+                                      </v-col>
+                            
+                                    </v-row>
+                            
+                            
+                                  </v-col> -->
     
         <!-- <v-col cols="5">
-                    
-                                <v-row justify="end">
-                                    <v-col cols="auto">
-                                        <v-btn color="primary" @click="addWorker()">
-                                            Add Pekerja
-                                        </v-btn>
-                                    </v-col>
-                                    <v-col cols="auto">
-                                        <BaseDialog v-model="isDialogExporOpen" title="Ekspor Pekerja dan Pajak" buttonText="Ekspor" buttonColor="danger" buttonVariant="tonal" @closed="isDialogExporOpen = false">
-                                            <h2>Expor </h2>
-                                            <br>
-                                            <BaseForm :fields="formFieldsExpor" v-model="formDataExpor" @submit="submitFormExpor" />
-                                        </BaseDialog>
-                                    </v-col>
-                    
-                                </v-row>
-                    
-                            </v-col> -->
+                        
+                                    <v-row justify="end">
+                                        <v-col cols="auto">
+                                            <v-btn color="primary" @click="addWorker()">
+                                                Add Pekerja
+                                            </v-btn>
+                                        </v-col>
+                                        <v-col cols="auto">
+                                            <BaseDialog v-model="isDialogExporOpen" title="Ekspor Pekerja dan Pajak" buttonText="Ekspor" buttonColor="danger" buttonVariant="tonal" @closed="isDialogExporOpen = false">
+                                                <h2>Expor </h2>
+                                                <br>
+                                                <BaseForm :fields="formFieldsExpor" v-model="formDataExpor" @submit="submitFormExpor" />
+                                            </BaseDialog>
+                                        </v-col>
+                        
+                                    </v-row>
+                        
+                                </v-col> -->
         <!-- </v-row> -->
     
         <!-- Tabel Kehadiran -->
         <!-- <v-table>
-                            <thead>
-                                <tr>
-                                    <th>Nama Penerima</th>
-                                    <th>NIK</th>
-                                    <th>Status Pernikahan</th>
-                                    <th>Total Pendapatan Bulanan</th>
-                                    <th>Tempat Proyek</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(item, index) in filteredAttendance" :key="index">
-                                    <td>{{ item.nama }}</td>
-                                    <td>{{ item.nik }}</td>
-                                    <td>{{ item.statusPtkp }}</td>
-                                    <td>{{ item.penghasilan }}</td>
-                                    <td>{{ item.lokasiProyek }}</td>
-                                    <td>
-                                        <v-btn color="primary" @click="showDetail(item.id)">
-                                            Show
-                                        </v-btn>
-                                        <v-btn color="primary" @click="update(item.id)">
-                                            Update
-                                        </v-btn>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </v-table> -->
+                                <thead>
+                                    <tr>
+                                        <th>Nama Penerima</th>
+                                        <th>NIK</th>
+                                        <th>Status Pernikahan</th>
+                                        <th>Total Pendapatan Bulanan</th>
+                                        <th>Tempat Proyek</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(item, index) in filteredAttendance" :key="index">
+                                        <td>{{ item.nama }}</td>
+                                        <td>{{ item.nik }}</td>
+                                        <td>{{ item.statusPtkp }}</td>
+                                        <td>{{ item.penghasilan }}</td>
+                                        <td>{{ item.lokasiProyek }}</td>
+                                        <td>
+                                            <v-btn color="primary" @click="showDetail(item.id)">
+                                                Show
+                                            </v-btn>
+                                            <v-btn color="primary" @click="update(item.id)">
+                                                Update
+                                            </v-btn>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </v-table> -->
     </v-container>
 </template>
 
