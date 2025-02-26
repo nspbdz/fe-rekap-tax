@@ -2,10 +2,10 @@
     <p v-if="isLoading"> Loading...</p>
     
     
-
+    
     <v-container v-else>
-
-      <v-dialog v-model="isDeleteDialogOpen" max-width="400px">
+    
+        <v-dialog v-model="isDeleteDialogOpen" max-width="400px">
             <v-card>
                 <v-card-title>Konfirmasi Hapus</v-card-title>
                 <v-card-text>Apakah Anda yakin ingin menghapus proyek ini?</v-card-text>
@@ -16,11 +16,11 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-
-      <BaseDialog v-model="isUpdateDialogOpen" title="Update Project" buttonText="Update Project" buttonColor="primary" buttonVariant="tonal" @closed="isUpdateDialogOpen = false">
-        <BaseForm :fields="formFieldsUpdate" v-model="selectedProject" @submit="updateProject" />
-      </BaseDialog>
-
+    
+        <BaseDialog v-model="isUpdateDialogOpen" title="Update Project" hideActivator @closed="isUpdateDialogOpen = false">
+            <BaseForm :fields="formFieldsUpdate" v-model="selectedProject" @submit="updateProject" />
+        </BaseDialog>
+    
         <v-snackbar v-model="showSuccess" timeout="3000" color="green">
             Project berhasil ditambahkan!
         </v-snackbar>
@@ -70,7 +70,7 @@
                     <td>
                         <v-btn color="primary" @click="openUpdateDialog(item)">Update</v-btn>
                         <v-btn color="red" @click="openDeleteDialog(item)">Delete</v-btn>
-
+    
                     </td>
                 </tr>
             </tbody>
@@ -83,11 +83,8 @@
 
 <script setup>
 import { useRouter } from "vue-router";
-// import projects from "../dataProjects.js";
 import BaseDialog from "../../src/components/BaseDialog";
 import BaseForm from "../../src/components/BaseForm";
-
-
 import { useProjectStore } from '../src/stores/projectStore'
 import { useLoading } from '../src/composables/useLoading'
 
@@ -109,7 +106,7 @@ const showError = ref(false);
 
 
 const isUpdateDialogOpen = ref(false);
-const selectedProject = ref({ project_id:"", project_name: "", project_location: "" });
+const selectedProject = ref({ project_id: "", project_name: "", project_location: "" });
 
 const payload = computed(() => ({
     project_name: projectName.value,
@@ -184,24 +181,10 @@ const openDeleteDialog = (item) => {
     isDeleteDialogOpen.value = true;
 };
 
-
-// Navigasi ke halaman Create
-const goToCreate = () => {
-    router.push("/projects/create");
-};
-
-// Navigasi ke halaman Update
-
-const handleUpdate = (id) => {
-    router.push(`/projects/update?id=${id}`);
-
-};
-
-
 const updateProject = async () => {
     try {
 
-      if (!selectedProject.value.id) {
+        if (!selectedProject.value.id) {
             console.error("ID tidak ditemukan!");
             return;
         }
@@ -209,7 +192,7 @@ const updateProject = async () => {
         const response = await projectStore.updateProject(selectedProject.value);
         console.log('Update response:', response);
 
-        if (response.success) { 
+        if (response.success) {
             showSuccess.value = true; // Munculkan notifikasi sukses
             isUpdateDialogOpen.value = false; // Tutup dialog
             fetchProjects(); // Refresh data di tabel
@@ -231,7 +214,7 @@ const addProject = async (item) => {
         const response = await projectStore.addProject(formData.value);
         console.log('ressss123', response);
 
-        if (response.success) { 
+        if (response.success) {
             showSuccess.value = true; // Munculkan popup sukses
             isAddProjectDialog.value = false; // Tutup dialog
         } else {
@@ -262,7 +245,6 @@ const handleDeleteConfirmed = async () => {
     isDeleteDialogOpen.value = false;
     projectToDelete.value = null;
 };
-
 </script>
 
 
