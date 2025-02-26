@@ -68,7 +68,7 @@ class Api {
   async doPost(url, body = {}) {
     try {
       const fullUrl = `${this.apiBase}/${url}`
-      console.log(`[POST] Request URL:`, fullUrl)
+      console.log(`[POS123123 URL:`, fullUrl)
       console.log(`[POST] Request Body:`, body)
   
       const response = await ofetch(fullUrl, {
@@ -124,6 +124,29 @@ class Api {
       throw error
     }
   }
+
+  async doDelete(url, body = {}) {
+    try {
+      const fullUrl = `${this.apiBase}/${url}`
+      console.log(`[DELETE] Request URL:`, fullUrl)
+      console.log(`[DELETE] Request Body:`, body)
+  
+      const response = await ofetch(fullUrl, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body) // Kirim body sebagai JSON jika diperlukan
+      })
+  
+      console.log(`[DELETE] Response:`, response)
+      return response
+    } catch (error) {
+      console.error(`[DELETE] Error:`, error)
+      throw error
+    }
+  }
+  
   
   
 }
