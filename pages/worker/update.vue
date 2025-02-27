@@ -16,70 +16,86 @@
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import BaseForm from "../../src/components/BaseForm.vue";
+import { useWorkerStore } from '../src/stores/workerStore';
 
 const router = useRouter();
 const route = useRoute();
+const workerStore = useWorkerStore();
+const id = parseInt(route.query.id); // Ambil ID dari URL query (?id=1)
+
+console.log('ID:', id);
+
 const formData = ref({
-  masa_pajak: "",
-  tahun_pajak: "",
+  tax_period: "",
+  tax_year: "",
   nik: "",
-  id_tku_penerima_penghasilan: "",
+  tku_id: "",
   status_ptkp: "",
-  fasilitas: "",
-  kode_objek_pajak: "",
-  penghasilan: "",
+  facility: "",
+  tax_object_code: "",
+  income: "",
   deemed: "",
-  tarif: "",
-  jenis_dok_referensi: "",
-  nomor_dok_referensi: "",
-  tanggal_dok_referensi: "",
-  id_tku_pemotong: "",
-  tanggal_pemotongan: "",
+  rate: "",
+  document_type: "",
+  document_number: "",
+  document_date: "",
+  tax_cutter_id: "",
+  deduction_date: "",
   tanggal: "",
   file: null,
 });
 
+
 const formFieldsUpdate = [
-  { label: "Masa Pajak", model: "masa_pajak", type: "text", required: true },
-  { label: "Tahun Pajak", model: "tahun_pajak", type: "text", required: true },
+  { label: "Masa Pajak", model: "tax_period", type: "text", required: true },
+  { label: "Tahun Pajak", model: "tax_year", type: "text", required: true },
   { label: "Nik", model: "nik", type: "text", required: true },
-  { label: "ID TKU Penerima Penghasilan", model: "id_tku_penerima_penghasilan", type: "text", required: true },
+  { label: "ID TKU Penerima Penghasilan", model: "tku_id", type: "text", required: true },
   { label: "Status Ptkp", model: "status_ptkp", type: "select", items: ["K/0", "TK/0"], required: true },
-  { label: "Fasilitas", model: "fasilitas", type: "text", required: true },
-  { label: "Kode Objek Pajak", model: "kode_objek_pajak", type: "text", required: true },
-  { label: "Penghasilan", model: "penghasilan", type: "text", required: true },
+  { label: "Fasilitas", model: "facility", type: "text", required: true },
+  { label: "Kode Objek Pajak", model: "tax_object_code", type: "text", required: true },
+  { label: "Penghasilan", model: "income", type: "text", required: true },
   { label: "Deemed", model: "deemed", type: "text", required: true },
-  { label: "Tarif", model: "tarif", type: "text", required: true },
-  { label: "Jenis Dok. Referensi", model: "jenis_dok_referensi", type: "text", required: true },
-  { label: "Nomor Dok. Referensi", model: "nomor_dok_referensi", type: "text", required: true },
-  { label: "Tanggal Dok. Referensi", model: "tanggal_dok_referensi", type: "text", required: true },
-  { label: "ID TKU Pemotong", model: "id_tku_pemotong", type: "text", required: true },
-  { label: "Tanggal Pemotongan", model: "tanggal_pemotongan", type: "text", inputType: "date", required: true },
+  { label: "Tarif", model: "rate", type: "text", required: true },
+  { label: "Jenis Dok. Referensi", model: "document_type", type: "text", required: true },
+  { label: "Nomor Dok. Referensi", model: "document_number", type: "text", required: true },
+  { label: "Tanggal Dok. Referensi", model: "document_date", type: "text", required: true },
+  { label: "ID TKU Pemotong", model: "tax_cutter_id", type: "text", required: true },
+  { label: "Tanggal Pemotongan", model: "deduction_date", type: "text", inputType: "date", required: true },
   { label: "Upload Foto", model: "file", type: "file", required: false },
 ];
 
+const handleData = async () => {
+    try {
+        const response = await workerStore.detailWorker({ id });
+        if (response.data) {
+          Object.assign(formData.value, {
+                tax_period: response.data.tax_period,
+                tax_year: response.data.tax_year,
+                nik: response.data.taxpayer.nik,
+                tku_id: response.data.taxpayer.tku_id,
+                status_ptkp: response.data.taxpayer.status_ptkp,
+                facility: response.data.taxpayer.facility,
+                tax_object_code: response.data.tax_object_code,
+                income: response.data.income,
+                deemed: response.data.deemed,
+                rate: response.data.rate,
+                document_type: response.data.tax_document.document_type,
+                document_number: response.data.tax_document.document_number,
+                tax_cutter_id: response.data.tax_cutter.tku_id,
+                deduction_date: response.data.deduction_date,
+                file: response.data.file,
+            });
+        }
+    } catch (error) {
+        console.warn("Error fetching data:", error);
+    }
+};
+
 // Fetch data dari backend atau sumber lain
 onMounted(() => {
-  const workerId = route.params.id;
-  // Dummy data, ganti dengan API call
-  formData.value = {
-    masa_pajak: "1",
-    tahun_pajak: "2025",
-    nik: "1001",
-    id_tku_penerima_penghasilan: "3172024806201001000000",
-    status_ptkp: "K/0",
-    fasilitas: "N/A",
-    kode_objek_pajak: "21-100-35",
-    penghasilan: "6000000",
-    deemed: "100",
-    tarif: "0.75",
-    jenis_dok_referensi: "Announcement",
-    nomor_dok_referensi: "ABC123",
-    tanggal_dok_referensi: "2024-01-13",
-    id_tku_pemotong: "3172022407981001000000",
-    tanggal_pemotongan: "2025-01-01",
-    file: null,
-  };
+  handleData();
+  
 });
 
 const submitForm = () => {
