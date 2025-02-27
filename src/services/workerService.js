@@ -9,7 +9,7 @@ export default {
     }
   },
 
-  async detailAttendance(payload) {
+  async getWorkerDetail(payload) {
     try {
       return await api.doPostDetail('workers/detail', payload)
     } catch (error) {
