@@ -3,6 +3,25 @@ import workerService from '../services/workerService'
 
 export const useWorkerStore = defineStore('worker', {
   state: () => ({
+    workerData: {
+      nik: "",
+      project_id: "",
+      // masa_pajak: "",
+      // tahun_pajak: "",
+      // id_tku_penerima_penghasilan: "",
+      // status_ptkp: "",
+      // fasilitas: "",
+      // kode_objek_pajak: "",
+      // penghasilan: "",
+      // deemed: "",
+      // tarif: "",
+      // jenis_dok_referensi: "",
+      // nomor_dok_referensi: "",
+      // tanggal_dok_referensi: "",
+      // id_tku_pemotong: "",
+      // tanggal_pemotongan: "",
+      // file: null,
+    },
     workers: [],
     loading: false,
   }),
@@ -13,6 +32,14 @@ export const useWorkerStore = defineStore('worker', {
   },
 
   actions: {
+    
+    setWorkerData(data) {
+      this.workerData = { ...this.workerData, ...data };
+    },
+    resetWorkerData() {
+      this.workerData = {};
+    },
+
     // Fetch semua data worker
     async fetchWorkers(payload) {
       this.loading = true
@@ -36,7 +63,7 @@ export const useWorkerStore = defineStore('worker', {
     },
 
     // Tambah worker baru
-    async addWorker(payload) {
+    async addWorkerStore(payload) {
       this.loading = true
       try {
         console.log('[Store] Adding worker:', payload)

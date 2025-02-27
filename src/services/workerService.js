@@ -25,9 +25,9 @@ export default {
     }
   },
   
-  async createAttendance(payload) {
+  async createWorker(payload) {
     try {
-      return await api.doPostExcel('workers', payload)
+      return await api.doPost('workers/store', payload)
     } catch (error) {
       throw error
     }
@@ -42,9 +42,9 @@ export default {
     }
   },
 
-  async updateAttendance(payload) {
+  async updateWorker(payload) {
     try {
-      return await api.doUpdate('workers/update', payload)
+      return await api.doPost('workers/update', payload)
     } catch (error) {
       throw error
     }
