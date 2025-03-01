@@ -27,7 +27,7 @@ export default {
   
   async createWorker(payload) {
     try {
-      return await api.doPost('workers/store', payload)
+      return await api.doPostWorker('workers/store', payload)
     } catch (error) {
       throw error
     }
@@ -45,6 +45,14 @@ export default {
   async updateWorker(payload) {
     try {
       return await api.doPost('workers/update', payload)
+    } catch (error) {
+      throw error
+    }
+  },
+
+  async nikCheck(payload) {
+    try {
+      return await api.doPost('workers/check-nik', payload)
     } catch (error) {
       throw error
     }

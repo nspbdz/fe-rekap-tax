@@ -119,6 +119,20 @@ export const useWorkerStore = defineStore('worker', {
       } finally {
         this.loading = false
       }
-    }
+    },
+
+    // Detail worker
+    async checkNik(payload) {
+      this.loading = true
+      try {
+        const response = await workerService.nikCheck(payload)
+        return response
+      } catch (error) {
+        console.error('[Store] Detail Error:', error)
+      } finally {
+        this.loading = false
+      }
+    },
+
   }
 })

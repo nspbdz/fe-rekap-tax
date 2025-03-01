@@ -1,5 +1,5 @@
 <template>
-    <v-container>
+    <v-container v-if="isDataLoaded">
         <h2>Detail Pekerja</h2>
         <v-btn color="secondary" @click="goBack">Kembali</v-btn>
         <br><br>
@@ -9,6 +9,11 @@
                 <strong>{{ key }}:</strong> <span>{{ value }}</span>
             </div>
         </v-card>
+    </v-container>
+    <v-container v-else>
+        <v-alert type="error" class="mt-4">
+            Data tidak ditemukan atau terjadi kesalahan saat mengambil data.
+        </v-alert>
     </v-container>
 </template>
 
@@ -21,11 +26,12 @@ const router = useRouter();
 const route = useRoute();
 const workerStore = useWorkerStore();
 const id = parseInt(route.params.id);
+const isDataLoaded = ref(false); // State untuk cek apakah data berhasil dimuat
 
 const formData = ref({});
 
 const displayFields = ref({
-    "Masa Pajak": "123123",
+    "Masa Pajak": "",
     "Tahun Pajak": "",
     "NIK": "",
     "Project": "",
@@ -50,6 +56,8 @@ const handleData = async () => {
         if (response.data) {
             formData.value = response.data;
             console.log('asdasd', response.data)
+            isDataLoaded.value = true; // Data berhasil dimuat
+
 
             // Memasukkan data secara manual
             displayFields.value = {
@@ -71,6 +79,8 @@ const handleData = async () => {
                 "Tanggal Pemotongan": formData.value.deduction_date || "-",
                 // "Upload Foto": formData.value.file ? "Ada file" : "Tidak ada file",
             };
+        }else {
+            isDataLoaded.value = false; // Data gagal dimuat
         }
     } catch (error) {
         console.warn("Error fetching data:", error);

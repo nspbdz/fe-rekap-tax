@@ -1,14 +1,16 @@
 <template>
     <v-container>
         <h2>Tambah Detail Pekerja</h2>
-    
+        <v-snackbar v-model="showSnackbarError" timeout="3000" color="red" location="top">
+            {{ errorMessage }}
+        </v-snackbar>
+
         <v-btn color="secondary" @click="goBack">Kembali</v-btn>
         <br>
         <br>
     
         <v-form @submit.prevent="submitForm">
             <BaseForm :fields="formFieldsAdd" v-model="formData" @submit="submitForm" />
-    
         </v-form>
     </v-container>
 </template>
@@ -19,6 +21,7 @@ import { useRouter } from "vue-router";
 import { useWorkerStore } from '../src/stores/workerStore'
 import BaseForm from "../../src/components/BaseForm.vue";
 const workerStore = useWorkerStore()
+const showSnackbarError = ref(false);
 
 function getWorkerInfo() {
     console.log('NIK:', workerStore.workerData.nik)
@@ -26,7 +29,7 @@ function getWorkerInfo() {
 }
 
 
-
+const errorMessage = ref(""); // Menyimpan pesan error dari backend
 const selectedLocation = ref(null);
 const locations = ["cisauk", "vbi", "sumarecon bekasi"];
 const router = useRouter();
@@ -39,8 +42,9 @@ onMounted(() => {
 });
 
 const formData = ref({
+    name: "test",
     project_id: 1,
-    npwp: 3123,
+    npwp: "3123",
     tax_period: 2,
     tax_year: "1995",
     nik: "123",
@@ -53,14 +57,16 @@ const formData = ref({
     rate: "1.31",
     document_type: 1,
     document_number: 1,
-    document_date: 1,
+    document_date: "1995-12-31",
     tax_cutter_id: 1,
     deduction_date: "1995-12-31",
-    file: null,
+    ktp_photo: null,
 });
+
 
 const formFieldsAdd = [
 
+    { label: "Nama", model: "name", type: "text", required: true },
     { label: "Masa Pajak", model: "tax_period", type: "text", required: true },
     { label: "Tahun Pajak", model: "tax_year", type: "text", required: true },
     { label: "Nik", model: "nik", type: "text", required: true },
@@ -74,40 +80,47 @@ const formFieldsAdd = [
     { label: "Tarif", model: "rate", type: "text", required: true },
     { label: "Jenis Dok. Referensi", model: "document_type", type: "text", required: true },
     { label: "Nomor Dok. Referensi", model: "document_number", type: "text", required: true },
-    { label: "Tanggal Dok. Referensi", model: "document_date", type: "text", required: true },
+    { label: "Tanggal Dok. Referensi", model: "document_date", type: "text", inputType: "date", required: true },
     { label: "ID TKU Pemotong", model: "tax_cutter_id", type: "text", required: true },
     { label: "Tanggal Pemotongan", model: "deduction_date", type: "text", inputType: "date", required: true },
-    { label: "Upload Foto", model: "file", type: "file", required: true },
+    { label: "Upload Foto", model: "ktp_photo", type: "file", required: true },
+    { label: "Proyek", model: "project_id", type: "hidden", required: true },
 ];
 
 // Simpan data baru (dummy, belum ke backend)
 const submitForm = async () => {
 
     try {
-        console.log('formData.value', formData.value)
+        console.log('formData.ktp_photoktp_photo', formData.value.ktp_photo)
 
         const formDataToSend = new FormData();
 
         for (const key in formData.value) {
             if (formData.value[key] !== null && formData.value[key] !== undefined) {
+                console.log('asdasda', key, formData.value[key])
                 formDataToSend.append(key, formData.value[key]);
             }
         }
-        console.log('formData.value', formData.value)
+
         const response = await workerStore.addWorkerStore(formDataToSend);
         console.log('Update response:', response);
 
-        if (response.success) {
-            showSuccess.value = true; // Munculkan notifikasi sukses
-            isUpdateDialogOpen.value = false; // Tutup dialog
-            // goBack(); // Refresh data di tabel
-        } else {
-            showError.value = true; // Munculkan notifikasi gagal
+        if (!response.success) {
+            errorMessage.value = response.message
+            showSnackbarError.value = true; // Munculkan snackbar jika NIK sudah digunakan
+            return;
         }
 
     } catch (error) {
         console.error('Error:', error);
-        showError.value = true; // Munculkan notifikasi gagal
+        if (error.response && error.response.data.errors) {
+            errorMessage.value = error.response.data.errors.nik
+                ? error.response.data.errors.nik[0] // Ambil pesan error NIK
+                : "Terjadi kesalahan.";
+        } else {
+            errorMessage.value = "Terjadi kesalahan dalam proses.";
+        }
+        showSnackbarError.value = true; // Tampilkan snackbar jika terjadi error
     }
     // alert(`Pekerja berhasil ditambahkan!`);
     // router.push("/worker");
