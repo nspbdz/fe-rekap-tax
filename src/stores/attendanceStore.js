@@ -37,6 +37,28 @@ export const useAttendanceStore = defineStore('attendance', {
       }
     },
 
+    async showAttendances(payload) {
+      this.loading = true
+      try {
+        console.log('[Store] Fetching attendances with payload:', payload)
+        const response = await attendanceService.showAttendanceService(payload)
+  
+        if (response?.data) {
+          this.attendances = response
+          return response  // Tambahkan return agar bisa digunakan di FE
+        } else {
+          console.warn('[Store] API response does not contain data:', response)
+          return [] // Kembalikan array kosong jika tidak ada data
+        }
+  
+      } catch (error) {
+        console.error('[Store] Fetching Error:', error)
+        return [] // Kembalikan array kosong jika terjadi error
+      } finally {
+        this.loading = false
+      }
+    },
+
     async updateAttendance(payload) {
       this.loading = true
       try {

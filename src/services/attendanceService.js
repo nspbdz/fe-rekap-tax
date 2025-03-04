@@ -9,6 +9,14 @@ export default {
     }
   },
 
+  async showAttendanceService(payload) {
+    try {
+      return await api.doPostDetail('attendances/show', payload)
+    } catch (error) {
+      throw error
+    }
+  },
+
   async detailAttendance(payload) {
     try {
       return await api.doPostDetail('attendances/detail', payload)
