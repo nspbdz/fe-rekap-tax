@@ -37,8 +37,6 @@
                 </BaseDialog>
     
     
-                <!-- <v-btn color="primary" class="mr-2" @click="fetchAttendances">Add</v-btn> -->
-                <!-- <v-btn color="primary" @click="fetchAttendances">Export</v-btn> -->
             </v-col>
         </v-row>
     
@@ -138,7 +136,7 @@ const fetchAttendances = async () => {
     const response = await attendanceStore.fetchAttendances(payload.value);
     console.log("Attendances updated:12312312", response);
 
-    if (response.data.length > 0) {
+    if (response.data) {
         totalRecords.value = response.total; // Pastikan API mengembalikan total data
         attendances.value = response.data; // Simpan hasil response ke variabel attendances
         console.log("Attendances updated321:", attendances.value);
