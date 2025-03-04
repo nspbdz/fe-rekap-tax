@@ -71,6 +71,7 @@ class Api {
       console.log(`[POS123123 URL:`, fullUrl)
       console.log(`[POST] Request Body:`, body)
   
+  
       const response = await ofetch(fullUrl, {
         method: 'POST',
         headers: {
@@ -108,7 +109,9 @@ class Api {
 
   async doPostExcel(url, body, urlParam) {
     try {
-      const fullUrl = `${this.apiBase}/${url}/${urlParam}`
+      
+      // const fullUrl = `${this.apiBase}/${url}/${urlParam}`
+      const fullUrl = `${this.apiBase}/${url}`
       console.log(`[POST] Request URL:`, fullUrl)
       console.log(`Excel payload:`, body)
   
@@ -165,6 +168,29 @@ class Api {
       throw error
     }
   }
+
+  async doPostAttendanceExcell(url, body = {}) {
+    try {
+      const fullUrl = `${this.apiBase}/${url}`
+      console.log(`[POS123123 URL:`, fullUrl)
+      console.log(`[POST] Request Body:`, body)
+      
+      const response = await ofetch(fullUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body) // Ubah body menjadi JSON
+      })
+  
+      console.log(`[POST] Response:`, response)
+      return response
+    } catch (error) {
+      console.error(`[POST] Error:`, error)
+      throw error
+    }
+  }
+
   
   
   

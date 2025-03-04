@@ -8,8 +8,10 @@
             <v-col cols="3" class="pa-2">
                 <v-text-field v-model="searchNIK" label="Cari NIK" clearable></v-text-field>
             </v-col>
+    
             <v-col cols="3" class="pa-2">
-                <v-select v-model="selectedLocation" label="Pilih Lokasi" :items="locations" clearable></v-select>
+                <v-select v-model="selectedLocation" label="Pilih Lokasi" :items="locationsDropdown" item-title="name" item-value="id" clearable>
+                </v-select>
             </v-col>
             <v-col cols="2" class="pa-5">
                 <v-btn color="primary" @click="submitForm">Cari</v-btn>
@@ -20,7 +22,11 @@
             <v-col cols="auto" class="pa-2 d-flex">
                 <BaseDialog v-model="isAddAttendanceOpen" title="Add Attendance" buttonText="Add Attendance" buttonColor="primary" buttonVariant="tonal" @closed="isAddAttendanceOpen = false">
                     <h2>Form Kehadiran</h2>
+                    <a href="/sample_attendance.xlsx" download="sample_attendance.xlsx">
+                                                    <button>Download Example</button>
+                                                    </a>
                     <br>
+
                     <BaseForm :fields="formFieldsAdd" v-model="formData" @submit="addAttendance" />
                 </BaseDialog>
     
@@ -76,26 +82,52 @@ import BaseForm from "../../src/components/BaseForm";
 import { onMounted, ref, computed, watchEffect } from "vue";
 import { useRouter } from "vue-router";
 import attendanceData from "../attendance_january_2025.js";
+import { ofetch } from 'ofetch'
 
 import { useAttendanceStore } from '../src/stores/attendanceStore'
+import { useProjectStore } from '../src/stores/projectStore'
 import { useLoading } from '../src/composables/useLoading'
+import axios from 'axios'
 
 const router = useRouter();
 const { isLoading, setLoading } = useLoading()
 const attendanceStore = useAttendanceStore();
+const projectStore = useProjectStore();
 const searchNIK = ref("");
 const selectedLocation = ref(null);
 const perPage = ref(10);
 const currentPage = ref(1);
-const locations = ["CV Mulyani Tbk", "vbi", "sumarecon bekasi"];
 const attendances = ref([]);
 const totalPages = computed(() => Math.ceil(totalRecords.value / perPage.value));
 const totalRecords = ref(0); // Tambahkan total records
+const projectLocation = ref("");
+const locations = ref([])
+const locationsDropdown = ref([])
 
+
+const fetchLocations = async () => {
+    try {
+        const response = await projectStore.fetchProjectLocation(payload.value);
+        console.log("location123", response.data);
+
+        locationsDropdown.value = response.data.map(loc => ({
+            id: loc.id,
+            name: loc.project_name
+        }));
+        console.log("location123321", locationsDropdown.value);
+
+       const itemsss =  locationsDropdown.value.map(loc => ({id: loc.id,name: loc.name }) ) // Ambil nama lokasi dari API
+       console.log("itemsss", itemsss);
+
+        locations.value = response.data; // Simpan hasil response ke variabel projects
+    } catch (error) {
+        console.error('Error fetching locations:', error)
+    }
+}
 
 const payload = computed(() => ({
     nik: searchNIK.value,
-    project_name: selectedLocation.value,
+    project_id: selectedLocation.value,
     per_page: perPage.value,
     page: currentPage.value,
 }));
@@ -118,6 +150,7 @@ const fetchAttendances = async () => {
 
 onMounted(() => {
     fetchAttendances();
+    fetchLocations();
 });
 
 
@@ -138,20 +171,30 @@ const getStatusText = (status) => {
 };
 
 
-const formData = computed(() => ({
+const formData= ref({
     year: "",
     month: "",
     project_id: "",
     file: null,
-}));
+});
 
 
-const formFieldsAdd = [
 
+const formFieldsAdd = computed(() => [
     { label: "Tanggal", model: "picker", type: "text", inputType: "month", required: false },
-    { label: "Project", model: "project_id", type: "select", items: ["VBI", "PJ Rahayu", "Sumarecon Bogor"], required: false },
+    {
+        label: "Project",
+        model: "project_id",
+        type: "select",
+        itemTitle: "name",
+        itemValue: "id",
+        items :  locationsDropdown.value.map(loc => ({id:loc.id,name:loc.name }) ), // Ambil nama lokasi dari API
+        // items: locations.value.map(loc => loc.project_name), // Ambil nama lokasi dari API
+        required: false
+    },
     { label: "Upload File", model: "file", type: "file", required: false },
-];
+]);
+
 
 const formDataExpor = ref({
     tanggal: "",
@@ -195,19 +238,38 @@ const addAttendance = async (item) => {
         return;
     }
 
-    // Buat FormData untuk multipart/form-data
-    const formDataToSend = new FormData();
-    formDataToSend.append("year", year);
-    formDataToSend.append("month", month);
-    formDataToSend.append("file", item.file); // File harus objek File
-    formDataToSend.append("project_id", 1); // Pastikan ID benar
 
-    const response = await attendanceStore.addAttendance(formDataToSend);
+     formData.value.year =  item.picker.split("-")[0] 
+     formData.value.month = item.picker.split("-")[1] 
+        console.log('yyy', formData.value)
 
-    console.log("Payload:", formDataToSend);
+        const formDataToSend = new FormData();
 
-    // const response = await attendanceStore.addAttendance(formDataToSend);
-    console.log('dataaaa', item.picker)
+        for (const key in formData.value) {
+            if (formData.value[key] !== null && formData.value[key] !== undefined) {
+                console.log('asdasda', key, formData.value[key])
+                formDataToSend.append(key, formData.value[key]);
+            }
+        }
+
+        try {
+            const response = await axios.post(
+                'http://localhost:9010/api/v1/attendances/store-excel', 
+                formDataToSend, 
+                {
+                headers: {
+                    'Accept': 'application/json'
+                    // Jangan set 'Content-Type' secara manual karena browser akan mengaturnya untuk FormData
+                }
+                }
+            );
+            console.log('Response:', response.data);
+            alert('Upload berhasil!');
+            } catch (error) {
+            console.error('Upload error:', error.response?.data);
+            alert(error.response?.data.message);
+        }
+
 };
 
 // Fungsi navigasi ke halaman show berdasarkan ID

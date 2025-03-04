@@ -33,10 +33,9 @@ export default {
     }
   },
 
-  async exportAttendance(payload, urlParam) {
+  async exportAttendance(payload) {
     try {
-      console.log('aasd', urlParam)
-      return await api.doPostExcel('workers', payload, urlParam)
+      return await api.doPostExcel('workers', payload)
     } catch (error) {
       throw error
     }

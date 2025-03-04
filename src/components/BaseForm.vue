@@ -62,14 +62,26 @@ const handleMonthYearSelect = (field, date) => {
         />
 
         <!-- Select -->
-        <v-select
+        <!-- <v-select
           v-else-if="field.type === 'select'"
           :label="field.label"
           v-model="formData[field.model]"
           :items="field.items"
           :required="field.required"
           @update:modelValue="updateField(field.model, $event)"
-        />
+        /> -->
+
+        <v-select
+        v-else-if="field.type === 'select'"
+        :label="field.label"
+        v-model="formData[field.model]"
+        :items="field.items"
+        :item-title="field.itemTitle || 'name'"
+        :item-value="field.itemValue || 'id'"
+        :required="field.required"
+        @update:modelValue="updateField(field.model, $event)"
+      />
+
 
         <!-- File Upload -->
         <v-file-input

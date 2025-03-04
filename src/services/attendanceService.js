@@ -27,7 +27,7 @@ export default {
   
   async createAttendance(payload) {
     try {
-      return await api.doPostExcel('attendances', payload)
+      return await api.doPostAttendanceExcell('attendances/store-excel', payload)
     } catch (error) {
       throw error
     }

@@ -36,7 +36,7 @@ export default {
 
   async createProject(payload) {
     try {
-      return await api.doPost('projects/store', payload)
+      return await api.doPostWorker('projects/store', payload)
     } catch (error) {
       throw error
     }
