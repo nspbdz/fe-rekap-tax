@@ -91,22 +91,23 @@ const showError = ref(false); // Untuk menampilkan popup error
 const errorMessage = ref(""); // Menyimpan pesan error
 
 
+const payloadShow = computed(() => ({
+    id,
+}));
+
 onMounted(async () => {
   console.log('Sebelum fetch:', store.attendanceList); // Cek data sebelum fetch
+  const response = await store.showAttendances(payloadShow.value);
 
-  if (!store.attendanceList.length) {
-    await store.fetchAttendances({ page: 1 }); // Fetch ulang jika kosong
-    console.log('Data setelah fetch:', store.attendanceList);
-  }
+  if (response.data) {
+        dataWorker.value = response.data; // Jangan redeklarasi, cukup update value
 
-  // Pastikan ID valid sebelum mengambil data
-  if (id !== undefined && store.attendanceList[id]) {
-    dataWorker.value = store.attendanceList[id]; // Jangan redeklarasi, cukup update value
-    console.log('Data Worker:', dataWorker.value);
-  } else {
-    console.warn('Data tidak ditemukan untuk ID:', id);
-    dataWorker.value = 'Data tidak ditemukan'; // Gunakan string sebagai fallback
-  }
+        console.log("Attendances updated321:", dataWorker.value);
+        console.log("Attendances :", response);
+    } else {
+        console.warn("No data received from API");
+    }
+    
 });
 
 
