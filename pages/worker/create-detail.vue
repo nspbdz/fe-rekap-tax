@@ -42,24 +42,24 @@ const lokasiOptions = ["Cisauk", "VBI", "Sumarecon Bekasi"];
 
 
 const formData = ref({
-    name: "test",
+    name: "",
     project_id: "",
-    tax_period: "2",
-    tax_year: "2025",
-    nik: "",
-    tku_id: "123",
-    status_ptkp: "1",
-    facility: "1",
-    tax_object_code: "21-121-60",
-    income: "2876948.35",
-    deemed: "480.24",
-    rate: "1.31",
-    document_type: 1,
-    document_number: 1,
-    document_date: "1995-12-31",
-    tax_cutter_id: 1,
-    deduction_date: "1995-12-31",
-    ktp_photo: null,
+    tax_period:"",
+    tax_year:"",
+    nik:"",
+    tku_id:"",
+    status_ptkp:"",
+    facility:"",
+    tax_object_code:"",
+    income:"" ,
+    deemed:"" ,
+    rate:"" ,
+    document_type:"",
+    document_number:"",
+    document_date:"",
+    tax_cutter_id:"",
+    deduction_date:"",
+    ktp_photo:"",
 });
 
 onMounted(() => {
@@ -119,6 +119,8 @@ const submitForm = async () => {
             );
             console.log('Response:', response);
             alert('Upload berhasil!');
+            router.push("/worker");
+
         } catch (error) {
             const firstError = Object.values(error.response?.data.errors || {})[0]?.[0] || "Terjadi kesalahan.";
             alert(firstError);
