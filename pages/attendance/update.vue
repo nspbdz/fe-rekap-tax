@@ -99,6 +99,7 @@ onMounted(async () => {
   console.log('Sebelum fetch:', store.attendanceList); // Cek data sebelum fetch
   const response = await store.showAttendances(payloadShow.value);
 
+  
   if (response.data) {
         dataWorker.value = response.data; // Jangan redeklarasi, cukup update value
 
@@ -107,7 +108,7 @@ onMounted(async () => {
     } else {
         console.warn("No data received from API");
     }
-    
+
 });
 
 

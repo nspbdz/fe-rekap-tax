@@ -104,6 +104,16 @@ class Api {
     } catch (error) {
       console.error(`[POST] Error:`, error)
       throw error
+      console.log(`er123:`, error)
+
+      // Menangkap response jika tersedia
+      // if (error.response) {
+      //   console.error(`[POST] Error Response:`, error.response)
+      //   return error.response // Mengembalikan response meskipun error
+      // } else {
+      //   console.error(`[POST] Unexpected Error:`, error)
+      //   throw error // Jika tidak ada response, lempar error biasa
+      // }
     }
   }
 

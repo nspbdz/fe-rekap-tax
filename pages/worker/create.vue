@@ -8,32 +8,57 @@ lokasilokasi<template>
         <v-btn color="secondary" @click="goBack">Kembali</v-btn>
         <br>
         <br>
-        <v-form @submit.prevent="submitForm">
-            <BaseForm :fields="formFieldsAdd" v-model="formData" @submit="submitForm" />
-        </v-form>
+        <BaseForm :fields="formFieldsAdd" v-model="formData" @submit="submitForm" />
+    
     </v-container>
 </template>
   
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import BaseForm from "../../src/components/BaseForm.vue";
+import BaseForm from "../../src/components/BaseForm";
 import { useWorkerStore } from '../src/stores/workerStore'
 import workerService from "~/src/services/workerService";
+import { useProjectStore } from '../src/stores/projectStore'
 
 const selectedLocation = ref(null);
 const workerStore = useWorkerStore();
-const locations = ["cisauk", "vbi", "sumarecon bekasi"];
 const router = useRouter();
 const nama = ref("");
 const lokasi = ref("");
-const lokasiOptions = ["Cisauk", "VBI", "Sumarecon Bekasi"];
 const showSnackbarError = ref(false);
+const locations = ref([])
+const locationsDropdown = ref([])
+const projectStore = useProjectStore();
+
+
+const fetchLocations = async () => {
+    try {
+        const response = await projectStore.fetchProjectLocation(payload.value);
+        console.log("location", response.data);
+
+        locationsDropdown.value = response.data.map(loc => ({
+            id: loc.id,
+            name: loc.project_name
+        }));
+        console.log("location123321", locationsDropdown);
+       const itemsss =  locationsDropdown.value.map(loc => ({id: loc.id,name: loc.name }) ) // Ambil nama lokasi dari API
+       console.log("itemsss", itemsss);
+
+    } catch (error) {
+        console.error('Error fetching locations:', error)
+    }
+}
+
+onMounted(() => {
+    fetchLocations();
+
+});
 
 
 const formData = ref({
-    nik: "8966086673414030",
-    project: "1"
+    nik: "",
+    project_id: ""
 });
 
 const payload = computed(() => ({
@@ -42,25 +67,37 @@ const payload = computed(() => ({
 }));
 
 
-const formFieldsAdd = [
+const formFieldsAdd = computed(() => [
+
 
     { label: "Nik", model: "nik", type: "text", required: true },
-    { label: "Project", model: "project", type: "select", items: ["VBI", "Cisauk", "Sumarecon Bogor"], required: true },
-];
+    {
+        label: "Project",
+        model: "project_id",
+        type: "select",
+        itemTitle: "name",
+        itemValue: "id",
+        items: locationsDropdown.value.map(loc => ({ id: loc.id, name: loc.name })), // Ambil nama lokasi dari API
+        required: false
+    },
+]);
+
+
 
 // Simpan data baru (dummy, belum ke backend)
 
 const submitForm = async () => {
     try {
-        const response = await workerStore.checkNik(payload.value);
-        
+
+        const response = await workerStore.checkNik(formData.value);
+
         if (!response.success) {
             showSnackbarError.value = true; // Munculkan snackbar jika NIK sudah digunakan
             return;
         }
-
+        // const workerData = computed(() => workerStore.workerData)
+        // console.log('workerData11111111111111', workerData)
         // Jika NIK tersedia, simpan data dan lanjut ke halaman create detail
-        await workerService.nikCheck(payload.value);
         router.push(`/worker/create-detail`);
 
     } catch (error) {
@@ -68,6 +105,9 @@ const submitForm = async () => {
         showSnackbarError.value = true; // Tampilkan snackbar jika terjadi error
     }
 };
+
+
+
 // Kembali ke halaman Index
 const goBack = () => {
     router.push("/worker");

@@ -245,7 +245,6 @@ const addAttendance = async (item) => {
 
         for (const key in formData.value) {
             if (formData.value[key] !== null && formData.value[key] !== undefined) {
-                console.log('asdasda', key, formData.value[key])
                 formDataToSend.append(key, formData.value[key]);
             }
         }

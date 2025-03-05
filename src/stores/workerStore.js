@@ -6,21 +6,6 @@ export const useWorkerStore = defineStore('worker', {
     workerData: {
       nik: "",
       project_id: "",
-      // masa_pajak: "",
-      // tahun_pajak: "",
-      // id_tku_penerima_penghasilan: "",
-      // status_ptkp: "",
-      // fasilitas: "",
-      // kode_objek_pajak: "",
-      // penghasilan: "",
-      // deemed: "",
-      // tarif: "",
-      // jenis_dok_referensi: "",
-      // nomor_dok_referensi: "",
-      // tanggal_dok_referensi: "",
-      // id_tku_pemotong: "",
-      // tanggal_pemotongan: "",
-      // file: null,
     },
     workers: [],
     loading: false,
@@ -68,6 +53,9 @@ export const useWorkerStore = defineStore('worker', {
       try {
         console.log('[Store] Adding worker:', payload)
         const response = await workerService.createWorker(payload)
+        console.log('12312312312312:')
+        console.log('[Store] response:', response)
+
         if (response?.data) {
           this.workers.push(response.data)
         }
@@ -75,7 +63,7 @@ export const useWorkerStore = defineStore('worker', {
       } catch (error) {
         console.error('[Store] Adding Error:', error)
       } finally {
-        this.loading = false
+      this.loading = false
       }
     },
 
@@ -125,7 +113,19 @@ export const useWorkerStore = defineStore('worker', {
     async checkNik(payload) {
       this.loading = true
       try {
+        console.log('payloadpayload',payload)
+        console.log('resp v x onseku123',this.workerData)
+
         const response = await workerService.nikCheck(payload)
+        if (response) {
+          console.log('responseku123',response)
+
+          this.setWorkerData(payload) // Mengisi workerData dengan data dari API
+        }
+        console.log('masukkkkkk')
+
+        this.setWorkerData(payload) // Mengisi workerData dengan data dari API
+
         return response
       } catch (error) {
         console.error('[Store] Detail Error:', error)

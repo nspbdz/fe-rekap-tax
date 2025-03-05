@@ -4,7 +4,7 @@
         <v-snackbar v-model="showSnackbarError" timeout="3000" color="red" location="top">
             {{ errorMessage }}
         </v-snackbar>
-
+    
         <v-btn color="secondary" @click="goBack">Kembali</v-btn>
         <br>
         <br>
@@ -20,6 +20,8 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useWorkerStore } from '../src/stores/workerStore'
 import BaseForm from "../../src/components/BaseForm.vue";
+import axios from 'axios'
+
 const workerStore = useWorkerStore()
 const showSnackbarError = ref(false);
 
@@ -37,18 +39,15 @@ const nama = ref("");
 const lokasi = ref("");
 const lokasiOptions = ["Cisauk", "VBI", "Sumarecon Bekasi"];
 
-onMounted(() => {
-    getWorkerInfo();
-});
+
 
 const formData = ref({
     name: "test",
-    project_id: 1,
-    npwp: "3123",
-    tax_period: 2,
-    tax_year: "1995",
-    nik: "123",
-    tku_id: 1,
+    project_id: "",
+    tax_period: "2",
+    tax_year: "2025",
+    nik: "",
+    tku_id: "123",
     status_ptkp: "1",
     facility: "1",
     tax_object_code: "21-121-60",
@@ -63,6 +62,14 @@ const formData = ref({
     ktp_photo: null,
 });
 
+onMounted(() => {
+    getWorkerInfo();
+    const workerData = computed(() => workerStore.workerData)
+    formData.value.nik = workerData.value.nik
+    formData.value.project_id = workerData.value.project_id
+    console.log('workerData11111111111111', workerData)
+    console.log('workerData11111111111111', formData)
+});
 
 const formFieldsAdd = [
 
@@ -70,7 +77,6 @@ const formFieldsAdd = [
     { label: "Masa Pajak", model: "tax_period", type: "text", required: true },
     { label: "Tahun Pajak", model: "tax_year", type: "text", required: true },
     { label: "Nik", model: "nik", type: "text", required: true },
-    { label: "npwp", model: "npwp", type: "text", required: true },
     { label: "ID TKU Penerima Penghasilan", model: "tku_id", type: "text", required: true },
     { label: "Status Ptkp ", model: "status_ptkp", type: "select", items: ["K/0", "TK/0"], required: true },
     { label: "fasilitas", model: "facility", type: "text", required: true },
@@ -97,33 +103,40 @@ const submitForm = async () => {
 
         for (const key in formData.value) {
             if (formData.value[key] !== null && formData.value[key] !== undefined) {
-                console.log('asdasda', key, formData.value[key])
                 formDataToSend.append(key, formData.value[key]);
             }
         }
 
-        const response = await workerStore.addWorkerStore(formDataToSend);
-        console.log('Update response:', response);
-
-        if (!response.success) {
-            errorMessage.value = response.message
-            showSnackbarError.value = true; // Munculkan snackbar jika NIK sudah digunakan
-            return;
+        try {
+            const response = await axios.post(
+                'http://localhost:9010/api/v1/workers/store',
+                formDataToSend, {
+                    headers: {
+                        'Accept': 'application/json'
+                        // Jangan set 'Content-Type' secara manual karena browser akan mengaturnya untuk FormData
+                    }
+                }
+            );
+            console.log('Response:', response);
+            alert('Upload berhasil!');
+        } catch (error) {
+            const firstError = Object.values(error.response?.data.errors || {})[0]?.[0] || "Terjadi kesalahan.";
+            alert(firstError);
         }
 
     } catch (error) {
         console.error('Error:', error);
         if (error.response && error.response.data.errors) {
-            errorMessage.value = error.response.data.errors.nik
-                ? error.response.data.errors.nik[0] // Ambil pesan error NIK
-                : "Terjadi kesalahan.";
+            errorMessage.value = error.response.data.errors.nik ?
+                error.response.data.errors.nik[0] // Ambil pesan error NIK
+                :
+                "Terjadi kesalahan.";
         } else {
-            errorMessage.value = "Terjadi kesalahan dalam proses.";
+
+            errorMessage.value = "Terjadi kesalahan dalam 123123.";
         }
         showSnackbarError.value = true; // Tampilkan snackbar jika terjadi error
     }
-    // alert(`Pekerja berhasil ditambahkan!`);
-    // router.push("/worker");
 };
 
 // Kembali ke halaman Index
