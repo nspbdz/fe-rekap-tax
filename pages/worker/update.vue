@@ -25,8 +25,8 @@
         <div v-if="formData.file">
             
             <v-img
-                v-if="formData.file"
-                :src="formData.file"
+                v-if="formData.preview"
+                :src="formData.preview"
                 class="ktp-preview"
                 max-height="200"
                 max-width="200"
@@ -72,6 +72,7 @@ const formData = ref({
     deduction_date: "",
     ktp_photo: null,
     file: null,
+    preview: null,
 });
 
 const formFieldsUpdate = [
@@ -120,24 +121,45 @@ const handleData = async () => {
     }
 };
 
+// const handleFileUpload = (event) => {
+//     const file = event.target.files[0];
+//     formData.value.file = file;
+//     console.log('formData.value.file formData.value.file ', formData.value )
+//     console.log('formData.value.file  ', event.target )
+
+//     if (file) {
+//         formData.value.file = file;
+//         // formData.value.ktp_photo = file;
+//         previewImage(event);
+//     }
+// };
+
 const handleFileUpload = (event) => {
     const file = event.target.files[0];
-    formData.value.file = file;
-    console.log('formData.value.file formData.value.file ', formData.value.file )
-
     if (file) {
-        formData.value.file = file;
-        // formData.value.ktp_photo = file;
-        previewImage(event);
+        formData.value.file = file; // Simpan file asli
+        previewImage(file);
     }
 };
 
-const previewImage = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-        formData.value.file = URL.createObjectURL(file);
+const previewImage = (file) => {
+    if (formData.value.file && typeof formData.value.file === 'string') {
+        URL.revokeObjectURL(formData.value.file); // Hapus URL blob lama agar tidak bocor memori
     }
+    formData.value.ktp_photo = URL.createObjectURL(file); // Hanya untuk preview
+        if (file) {
+        formData.value.preview = URL.createObjectURL(file);
+    }
+
 };
+
+
+// const previewImage = (event) => {
+//     const file = event.target.files[0];
+//     if (file) {
+//         formData.value.file = URL.createObjectURL(file);
+//     }
+// };
 
 const submitForm = async () => {
     try {
@@ -145,20 +167,38 @@ const submitForm = async () => {
         const formDataToSend = new FormData();
 
         for (const key in formData.value) {
-            if (formData.value[key] !== null && formData.value[key] !== undefined && key !== 'ktp_photo') {
-                formDataToSend.append(key, formData.value[key]);
-            }
-        }
-
-        const response = await axios.post(
-            'http://localhost:9010/api/v1/workers/update',
-            formDataToSend, {
-                headers: {
-                    'Accept': 'application/json'
+            if (formData.value[key] !== null && formData.value[key] !== undefined) {
+                if (key === 'file' && formData.value[key] instanceof File) {
+                    formDataToSend.append(key, formData.value[key]); // Kirim file biner
+                } else if (key !== 'file' && key !== 'ktp_photo') {
+                    formDataToSend.append(key, formData.value[key]);
                 }
             }
-        );
-        console.log('Response:', response);
+        }
+        // for (const key in formData.value) {
+        //     if (formData.value[key] !== null && formData.value[key] !== undefined && key !== 'ktp_photo') {
+        //         formDataToSend.append(key, formData.value[key]);
+        //     }
+        // }
+
+        try {
+
+            const response = await axios.post(
+                'http://localhost:9010/api/v1/workers/update',
+                formDataToSend, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                }
+            );
+            console.log('Response:', response);
+            console.log('Response:', response);
+            alert('Upload berhasil!');
+            router.push("/worker");
+            } catch (error) {
+                    const firstError = Object.values(error.response?.data.errors || {})[0]?.[0] || "Terjadi kesalahan.";
+                    alert(firstError);
+                }
     } catch (error) {
         console.error('Error:', error);
     }
