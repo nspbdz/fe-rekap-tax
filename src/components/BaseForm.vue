@@ -113,6 +113,11 @@ const handleMonthYearSelect = (field, date) => {
       </v-col>
     </v-row>
 
-    <v-btn v-if="props.showSubmit" color="primary" type="submit">Submit</v-btn>
+    <v-row>
+      <v-col cols="12" class="text-right">
+        <v-btn v-if="props.showSubmit" color="primary" type="submit">Submit</v-btn>
+      </v-col>
+    </v-row>
+    <!-- <v-btn v-if="props.showSubmit" color="primary" type="submit">Submit</v-btn> -->
   </v-form>
 </template>

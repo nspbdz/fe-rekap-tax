@@ -6,10 +6,15 @@
     
         <v-card class="pa-4">
             <div v-for="(value, key) in displayFields" :key="key" class="mb-3">
-                <strong>{{ key }}:</strong> <span>{{ value }}</span>
+                <strong>{{ key }}:</strong>
+                <span v-if="key !== 'KTP Photo'">{{ value }}</span>
+                <v-img v-else-if="ktp_photo" :src="ktp_photo" alt="KTP Photo" width="200" height="150" />
+                <!-- <v-img v-else-if="imageBase642" :src="imageBase642" alt="KTP Photo" width="200" height="150" /> -->
+                
             </div>
         </v-card>
     </v-container>
+    
     <v-container v-else>
         <v-alert type="error" class="mt-4">
             Data tidak ditemukan atau terjadi kesalahan saat mengambil data.
@@ -26,9 +31,9 @@ const router = useRouter();
 const route = useRoute();
 const workerStore = useWorkerStore();
 const id = parseInt(route.params.id);
-const isDataLoaded = ref(false); // State untuk cek apakah data berhasil dimuat
-
+const isDataLoaded = ref(false);
 const formData = ref({});
+const ktp_photo = ref(""); // Untuk menyimpan URL KTP Photo
 
 const displayFields = ref({
     "Masa Pajak": "",
@@ -47,7 +52,7 @@ const displayFields = ref({
     "Tanggal Dok. Referensi": "",
     "ID TKU Pemotong": "",
     "Tanggal Pemotongan": "",
-    // "Upload Foto": "",
+    "KTP Photo": "",
 });
 
 const handleData = async () => {
@@ -55,38 +60,40 @@ const handleData = async () => {
         const response = await workerStore.detailWorker({ id });
         if (response.data) {
             formData.value = response.data;
-            console.log('asdasd', response.data)
-            isDataLoaded.value = true; // Data berhasil dimuat
-
-
-            // Memasukkan data secara manual
+            isDataLoaded.value = true;
+            
+            // Ambil URL KTP
+            ktp_photo.value = formData.value.taxpayer?.ktp_photo || "";
+            // Isi data
             displayFields.value = {
                 "Masa Pajak": formData.value.tax_period || "-",
                 "Tahun Pajak": formData.value.tax_year || "-",
-                "NIK": formData.value.taxpayer.nik || "-",
-                "Project": formData.value.project.project_name || "-",
-                "ID TKU Penerima Penghasilan": formData.value.taxpayer.tku_id || "-",
-                "Status PTKP": formData.value.taxpayer.status_ptkp || "-",
-                "Fasilitas": formData.value.taxpayer.facility || "-",
+                "NIK": formData.value.taxpayer?.nik || "-",
+                "Project": formData.value.project?.project_name || "-",
+                "ID TKU Penerima Penghasilan": formData.value.taxpayer?.tku_id || "-",
+                "Status PTKP": formData.value.taxpayer?.status_ptkp || "-",
+                "Fasilitas": formData.value.taxpayer?.facility || "-",
                 "Kode Objek Pajak": formData.value.tax_object_code || "-",
                 "Penghasilan": formData.value.income || "-",
                 "Deemed": formData.value.deemed || "-",
                 "Tarif": formData.value.rate || "-",
-                "Jenis Dok. Referensi": formData.value.tax_document.document_type || "-",
-                "Nomor Dok. Referensi": formData.value.tax_document.document_number || "-",
-                "Tanggal Dok. Referensi": formData.value.tax_document.document_date || "-",
-                "ID TKU Pemotong": formData.value.tax_cutter.tku_id || "-",
+                "Jenis Dok. Referensi": formData.value.tax_document?.document_type || "-",
+                "Nomor Dok. Referensi": formData.value.tax_document?.document_number || "-",
+                "Tanggal Dok. Referensi": formData.value.tax_document?.document_date || "-",
+                "ID TKU Pemotong": formData.value.tax_cutter?.tku_id || "-",
                 "Tanggal Pemotongan": formData.value.deduction_date || "-",
-                // "Upload Foto": formData.value.file ? "Ada file" : "Tidak ada file",
+                "KTP Photo": ktp_photo.value ? "Tersedia" : "Tidak Ada",
             };
-        }else {
-            isDataLoaded.value = false; // Data gagal dimuat
+            console.log('ktp_photoaaaaaaaa', ktp_photo)
+            console.log('displayFields', displayFields)
+            
+        } else {
+            isDataLoaded.value = false;
         }
     } catch (error) {
         console.warn("Error fetching data:", error);
     }
 };
-
 
 onMounted(handleData);
 

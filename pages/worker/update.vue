@@ -6,8 +6,36 @@
         <br>
         <br>
     
-        <v-form @submit.prevent="submitForm">
+        <v-form @submit.prevent="submitForm" >
             <BaseForm :fields="formFieldsUpdate" v-model="formData" @submit="submitForm" />
+            
+            <!-- <div v-if="formData.ktp_photo">
+                <p>Foto KTP Saat Ini:</p>
+                <img :src="formData.ktp_photo" alt="KTP Photo" style="max-width: 200px;">
+            </div>
+             -->
+            <v-file-input 
+                label="Upload Foto KTP Baru" 
+                @change="handleFileUpload" 
+                accept="image/*" />
+
+            <!-- <div v-if="formData.ktp_photo">
+            <img :src="formData.ktp_photo" alt="KTP Photo" style="max-width: 200px;">
+            </div> -->
+        <div v-if="formData.file">
+            
+            <v-img
+                v-if="formData.file"
+                :src="formData.file"
+                class="ktp-preview"
+                max-height="200"
+                max-width="200"
+            ></v-img>
+            </div>
+            <div v-else>
+            <img :src="formData.ktp_photo" alt="KTP Photo" style="max-width: 200px;">
+            </div>
+
         </v-form>
     </v-container>
 </template>
@@ -17,15 +45,16 @@ import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import BaseForm from "../../src/components/BaseForm.vue";
 import { useWorkerStore } from '../src/stores/workerStore';
+import axios from 'axios'
 
 const router = useRouter();
 const route = useRoute();
 const workerStore = useWorkerStore();
-const id = parseInt(route.query.id); // Ambil ID dari URL query (?id=1)
-
-console.log('ID:', id);
+const id = parseInt(route.query.id);
 
 const formData = ref({
+    name: "",
+    project_id: "",
     tax_period: "",
     tax_year: "",
     nik: "",
@@ -41,11 +70,12 @@ const formData = ref({
     document_date: "",
     tax_cutter_id: "",
     deduction_date: "",
+    ktp_photo: null,
     file: null,
 });
 
-
 const formFieldsUpdate = [
+    { label: "Nama", model: "name", type: "text", required: true },
     { label: "Masa Pajak", model: "tax_period", type: "text", required: true },
     { label: "Tahun Pajak", model: "tax_year", type: "text", required: true },
     { label: "Nik", model: "nik", type: "text", required: true },
@@ -58,10 +88,10 @@ const formFieldsUpdate = [
     { label: "Tarif", model: "rate", type: "text", required: true },
     { label: "Jenis Dok. Referensi", model: "document_type", type: "text", required: true },
     { label: "Nomor Dok. Referensi", model: "document_number", type: "text", required: true },
-    { label: "Tanggal Dok. Referensi", model: "document_date", type: "text",  inputType: "date", required: true },
+    { label: "Tanggal Dok. Referensi", model: "document_date", type: "text", inputType: "date", required: true },
     { label: "ID TKU Pemotong", model: "tax_cutter_id", type: "text", required: true },
     { label: "Tanggal Pemotongan", model: "deduction_date", type: "text", inputType: "date", required: true },
-    { label: "Upload Foto", model: "file", type: "file", required: false },
+    { label: "Proyek", model: "project_id", type: "hidden", required: true },
 ];
 
 const handleData = async () => {
@@ -69,13 +99,11 @@ const handleData = async () => {
         const response = await workerStore.detailWorker({ id });
         if (response.data) {
             Object.assign(formData.value, {
+                ...response.data.taxpayer,
+                project_id: response.data.project_id,
                 tax_transaction_id: response.data.id,
                 tax_period: response.data.tax_period,
                 tax_year: response.data.tax_year,
-                nik: response.data.taxpayer.nik,
-                tku_id: response.data.taxpayer.tku_id,
-                status_ptkp: response.data.taxpayer.status_ptkp,
-                facility: response.data.taxpayer.facility,
                 tax_object_code: response.data.tax_object_code,
                 income: response.data.income,
                 deemed: response.data.deemed,
@@ -84,58 +112,63 @@ const handleData = async () => {
                 document_number: response.data.tax_document.document_number,
                 tax_cutter_id: response.data.tax_cutter.tku_id,
                 deduction_date: response.data.deduction_date,
-                file: response.data.file,
+                ktp_photo: response.data.taxpayer.ktp_photo,
             });
         }
-        console.log('dddata', formData.value)
     } catch (error) {
         console.warn("Error fetching data:", error);
     }
 };
 
-// Fetch data dari backend atau sumber lain
-onMounted(() => {
-    handleData();
+const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    formData.value.file = file;
+    console.log('formData.value.file formData.value.file ', formData.value.file )
 
-});
+    if (file) {
+        formData.value.file = file;
+        // formData.value.ktp_photo = file;
+        previewImage(event);
+    }
+};
+
+const previewImage = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        formData.value.file = URL.createObjectURL(file);
+    }
+};
 
 const submitForm = async () => {
     try {
+        console.log('tttt', formData.value)
         const formDataToSend = new FormData();
 
-        if (!formData.value.tax_transaction_id) {
-            console.error("ID tidak ditemukan!");
-            return;
-        }
         for (const key in formData.value) {
-            if (formData.value[key] !== null && formData.value[key] !== undefined) {
+            if (formData.value[key] !== null && formData.value[key] !== undefined && key !== 'ktp_photo') {
                 formDataToSend.append(key, formData.value[key]);
             }
         }
 
-        const response = await workerStore.updateWorker(formDataToSend);
-        console.log('Update response:', response);
-
-        if (response.success) {
-            showSuccess.value = true; // Munculkan notifikasi sukses
-            isUpdateDialogOpen.value = false; // Tutup dialog
-            // goBack(); // Refresh data di tabel
-        } else {
-            showError.value = true; // Munculkan notifikasi gagal
-        }
+        const response = await axios.post(
+            'http://localhost:9010/api/v1/workers/update',
+            formDataToSend, {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }
+        );
+        console.log('Response:', response);
     } catch (error) {
         console.error('Error:', error);
-        showError.value = true; // Munculkan notifikasi gagal
     }
 };
-
-
-// const submitForm = () => {
-//   alert(`Pekerja berhasil diperbarui!`);
-//   router.push("/worker");
-// };
 
 const goBack = () => {
     router.push("/worker");
 };
+
+onMounted(() => {
+    handleData();
+});
 </script>
