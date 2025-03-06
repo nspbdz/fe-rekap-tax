@@ -25,8 +25,8 @@
         <div v-if="formData.file">
             
             <v-img
-                v-if="formData.preview"
-                :src="formData.preview"
+                v-if="formData.file"
+                :src="formData.file"
                 class="ktp-preview"
                 max-height="200"
                 max-width="200"
@@ -72,7 +72,6 @@ const formData = ref({
     deduction_date: "",
     ktp_photo: null,
     file: null,
-    preview: null,
 });
 
 const formFieldsUpdate = [
@@ -147,10 +146,7 @@ const previewImage = (file) => {
         URL.revokeObjectURL(formData.value.file); // Hapus URL blob lama agar tidak bocor memori
     }
     formData.value.ktp_photo = URL.createObjectURL(file); // Hanya untuk preview
-        if (file) {
-        formData.value.preview = URL.createObjectURL(file);
-    }
-
+    
 };
 
 
@@ -181,24 +177,15 @@ const submitForm = async () => {
         //     }
         // }
 
-        try {
-
-            const response = await axios.post(
-                'http://localhost:9010/api/v1/workers/update',
-                formDataToSend, {
-                    headers: {
-                        'Accept': 'application/json'
-                    }
+        const response = await axios.post(
+            'http://localhost:9010/api/v1/workers/update',
+            formDataToSend, {
+                headers: {
+                    'Accept': 'application/json'
                 }
-            );
-            console.log('Response:', response);
-            console.log('Response:', response);
-            alert('Upload berhasil!');
-            router.push("/worker");
-            } catch (error) {
-                    const firstError = Object.values(error.response?.data.errors || {})[0]?.[0] || "Terjadi kesalahan.";
-                    alert(firstError);
-                }
+            }
+        );
+        console.log('Response:', response);
     } catch (error) {
         console.error('Error:', error);
     }
