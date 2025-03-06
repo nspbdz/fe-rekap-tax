@@ -1,6 +1,14 @@
 import api from '../api/api' // Pastikan ini ada
 
 export default {
+  async summaryAttendanceService(payload) {
+    try {
+      return await api.doPostDetail('attendances/summary-by-month', payload)
+    } catch (error) {
+      throw error
+    }
+  },
+
   async getAttendances() {
     try {
       return await api.doGet('attendances')

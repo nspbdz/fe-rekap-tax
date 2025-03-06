@@ -6,36 +6,19 @@
         <br>
         <br>
     
-        <v-form @submit.prevent="submitForm" >
+        <v-form @submit.prevent="submitForm">
             <BaseForm :fields="formFieldsUpdate" v-model="formData" @submit="submitForm" />
-            
-            <!-- <div v-if="formData.ktp_photo">
-                <p>Foto KTP Saat Ini:</p>
-                <img :src="formData.ktp_photo" alt="KTP Photo" style="max-width: 200px;">
-            </div>
-             -->
-            <v-file-input 
-                label="Upload Foto KTP Baru" 
-                @change="handleFileUpload" 
-                accept="image/*" />
-
-            <!-- <div v-if="formData.ktp_photo">
-            <img :src="formData.ktp_photo" alt="KTP Photo" style="max-width: 200px;">
-            </div> -->
-        <div v-if="formData.file">
-            
-            <v-img
-                v-if="formData.file"
-                :src="formData.file"
-                class="ktp-preview"
-                max-height="200"
-                max-width="200"
-            ></v-img>
+    
+            <v-file-input label="Upload Foto KTP Baru" @change="handleFileUpload" accept="image/*" />
+    
+            <div v-if="formData.file">
+    
+                <v-img v-if="formData.file" :src="formData.file" class="ktp-preview" max-height="200" max-width="200"></v-img>
             </div>
             <div v-else>
-            <img :src="formData.ktp_photo" alt="KTP Photo" style="max-width: 200px;">
+                <img :src="formData.ktp_photo" alt="KTP Photo" style="max-width: 200px;">
             </div>
-
+    
         </v-form>
     </v-container>
 </template>
@@ -146,7 +129,7 @@ const previewImage = (file) => {
         URL.revokeObjectURL(formData.value.file); // Hapus URL blob lama agar tidak bocor memori
     }
     formData.value.ktp_photo = URL.createObjectURL(file); // Hanya untuk preview
-    
+
 };
 
 
@@ -171,11 +154,6 @@ const submitForm = async () => {
                 }
             }
         }
-        // for (const key in formData.value) {
-        //     if (formData.value[key] !== null && formData.value[key] !== undefined && key !== 'ktp_photo') {
-        //         formDataToSend.append(key, formData.value[key]);
-        //     }
-        // }
 
         const response = await axios.post(
             'http://localhost:9010/api/v1/workers/update',

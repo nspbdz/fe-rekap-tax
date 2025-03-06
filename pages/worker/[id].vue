@@ -26,6 +26,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useWorkerStore } from '../src/stores/workerStore';
+import { useAttendanceStore } from '../src/stores/attendanceStore'
 
 const router = useRouter();
 const route = useRoute();
@@ -34,8 +35,10 @@ const id = parseInt(route.params.id);
 const isDataLoaded = ref(false);
 const formData = ref({});
 const ktp_photo = ref(""); // Untuk menyimpan URL KTP Photo
+const attendanceStore = useAttendanceStore();
 
 const displayFields = ref({
+    "Penghasilan Bulan Ini": "",
     "Masa Pajak": "",
     "Tahun Pajak": "",
     "NIK": "",
@@ -61,8 +64,19 @@ const handleData = async () => {
         if (response.data) {
             formData.value = response.data;
             isDataLoaded.value = true;
-            
-            // Ambil URL KTP
+            const options = { year: 'numeric', month: '2-digit', timeZone: 'Asia/Jakarta' };
+            const today = new Date().toLocaleString("id-ID", options);
+
+            const [month, year] = today.split("/");
+
+            const payloadAttendance = computed(() => ({
+                id: formData.value.taxpayer.id,
+                month: month,
+                year: year,
+            }));
+
+            const attendanceData = await attendanceStore.summaryAttendanceStore(payloadAttendance.value);
+
             ktp_photo.value = formData.value.taxpayer?.ktp_photo || "";
             // Isi data
             displayFields.value = {
@@ -75,6 +89,7 @@ const handleData = async () => {
                 "Fasilitas": formData.value.taxpayer?.facility || "-",
                 "Kode Objek Pajak": formData.value.tax_object_code || "-",
                 "Penghasilan": formData.value.income || "-",
+                "Penghasilan Bulan Ini": formData.value.income * attendanceData.data || "-",
                 "Deemed": formData.value.deemed || "-",
                 "Tarif": formData.value.rate || "-",
                 "Jenis Dok. Referensi": formData.value.tax_document?.document_type || "-",
