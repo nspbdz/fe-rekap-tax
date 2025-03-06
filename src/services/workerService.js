@@ -56,6 +56,14 @@ export default {
       throw error
     }
   },
+  
+  async deleteWorkerService(id) {
+    try {
+      return await api.doDelete(`workers/${id}`)
+    } catch (error) {
+      throw error
+    }
+  }
 
 
 }

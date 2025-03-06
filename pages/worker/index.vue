@@ -64,7 +64,7 @@
             </thead>
             <tbody>
     
-                <tr v-for="item in projects" :key="item.id">
+                <tr v-for="item in workers" :key="item.id">
                     <td>{{ item.taxpayer.name }}</td>
                     <td>{{ item.taxpayer.nik }}</td>
                     <td>{{ item.taxpayer.status_ptkp }}</td>
@@ -89,89 +89,6 @@
         <br>
         <br>
     
-        <!-- Filter -->
-        <!-- <v-row no-gutters> -->
-    
-        <!-- <v-col cols="7">
-                                
-                                        <v-row >
-                                          <v-col cols="4">
-                                            <v-text-field v-model="searchNIK" label="Cari NIK" clearable></v-text-field>
-                                          </v-col>
-                                          
-                                          <v-col cols="4">
-                                            <v-select 
-                                              v-model="selectedLocation" 
-                                              label="Pilih Lokasi"
-                                              :items="locations" 
-                                              clearable>
-                                            </v-select>
-                                
-                                          </v-col>
-                                
-                                
-                                          <v-col cols="4">
-                                            <div>
-                                              <v-btn type="submit" color="primary">Submit</v-btn>
-                                            </div>
-                                          </v-col>
-                                
-                                        </v-row>
-                                
-                                
-                                      </v-col> -->
-    
-        <!-- <v-col cols="5">
-                            
-                                        <v-row justify="end">
-                                            <v-col cols="auto">
-                                                <v-btn color="primary" @click="addWorker()">
-                                                    Add Pekerja
-                                                </v-btn>
-                                            </v-col>
-                                            <v-col cols="auto">
-                                                <BaseDialog v-model="isDialogExporOpen" title="Ekspor Pekerja dan Pajak" buttonText="Ekspor" buttonColor="danger" buttonVariant="tonal" @closed="isDialogExporOpen = false">
-                                                    <h2>Expor </h2>
-                                                    <br>
-                                                    <BaseForm :fields="formFieldsExpor" v-model="formDataExpor" @submit="submitFormExpor" />
-                                                </BaseDialog>
-                                            </v-col>
-                            
-                                        </v-row>
-                            
-                                    </v-col> -->
-        <!-- </v-row> -->
-    
-        <!-- Tabel Kehadiran -->
-        <!-- <v-table>
-                                    <thead>
-                                        <tr>
-                                            <th>Nama Penerima</th>
-                                            <th>NIK</th>
-                                            <th>Status Pernikahan</th>
-                                            <th>Total Pendapatan Bulanan</th>
-                                            <th>Tempat Proyek</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(item, index) in filteredAttendance" :key="index">
-                                            <td>{{ item.nama }}</td>
-                                            <td>{{ item.nik }}</td>
-                                            <td>{{ item.statusPtkp }}</td>
-                                            <td>{{ item.penghasilan }}</td>
-                                            <td>{{ item.lokasiProyek }}</td>
-                                            <td>
-                                                <v-btn color="primary" @click="showDetail(item.id)">
-                                                    Show
-                                                </v-btn>
-                                                <v-btn color="primary" @click="update(item.id)">
-                                                    Update
-                                                </v-btn>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </v-table> -->
     </v-container>
 </template>
 
@@ -211,6 +128,8 @@ const iseditMonthlyIncomeOpen = ref(false);
 const searchNIK = ref("");
 const selectedLocation = ref(null);
 const locations = ref([])
+const workers = ref([]);
+
 
 
 const payload = computed(() => ({
@@ -225,7 +144,7 @@ const fetchLocations = async () => {
         const response = await projectStore.fetchProjectLocation(payload.value);
         console.log("location", response.data);
 
-        locations.value = response.data; // Simpan hasil response ke variabel projects
+        locations.value = response.data; // Simpan hasil response ke variabel 
     } catch (error) {
         console.error('Error fetching locations:', error)
     }
@@ -236,13 +155,11 @@ const fetchWorkers = async () => {
     console.log("Payload:", payload.value);
 
     const response = await workerStore.fetchWorkers(payload.value);
-    console.log("projects updated:12312312", response);
 
     if (response.data.length > 0) {
         totalRecords.value = response.total; // Pastikan API mengembalikan total data
-        projects.value = response.data; // Simpan hasil response ke variabel projects
-        console.log("projects updated321:", projects.value);
-        console.log("projects :", response);
+        workers.value = response.data; // Simpan hasil response ke variabel workers
+        console.log("projects updated321:", workers.value);
     } else {
         console.warn("No data received from API");
     }
@@ -333,6 +250,31 @@ const showDetail = (id) => {
 const update = (id) => {
     router.push(`/worker/update?id=${id}`);
 
+};
+
+const openDeleteDialog = (item) => {
+    projectToDelete.value = item;
+    isDeleteDialogOpen.value = true;
+};
+
+const handleDeleteConfirmed = async () => {
+    if (!projectToDelete.value) return;
+    console.log('projectToDelete.value', projectToDelete.value.id)
+
+    try {
+        const response = await workerStore.deleteWorker(projectToDelete.value.id);
+        console.log('responseresponseresponsedelete', response)
+        if (response.success) {
+            workers.value = workers.value.filter(p => p.id !== projectToDelete.value.id);
+        } else {
+            showError.value = true;
+        }
+    } catch (error) {
+        showError.value = true;
+    }
+
+    isDeleteDialogOpen.value = false;
+    projectToDelete.value = null;
 };
 
 // Fungsi kembali ke halaman utama absensi

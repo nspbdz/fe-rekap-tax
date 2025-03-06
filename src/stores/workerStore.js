@@ -97,15 +97,20 @@ export const useWorkerStore = defineStore('worker', {
 
     // Hapus worker
     async deleteWorker(id) {
-      this.loading = true
+      this.loading = true;
       try {
-        console.log('[Store] Deleting worker:', id)
-        await workerService.deleteWorker(id)
-        this.workers = this.workers.filter(worker => worker.id !== id)
+        console.log("[Store] Deleting worker:", id);
+        const response = await workerService.deleteWorkerService(id);
+        
+        // ✅ Filter workers hanya jika array
+        if (Array.isArray(this.workers)) {
+          this.workers = this.workers.filter((worker) => worker.id !== id);
+        }
+        return response
       } catch (error) {
-        console.error('[Store] Deleting Error:', error)
+        console.error("[Store] Deleting Error:", error);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
