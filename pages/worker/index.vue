@@ -69,7 +69,7 @@
                     <td>{{ item.taxpayer.nik }}</td>
                     <td>{{ item.taxpayer.status_ptkp }}</td>
                     <td>{{ item.income }}</td>
-                    <td>{{ item.project.project_name }}</td>
+                    <td>{{ item.project?.project_name || "-" }}</td>
                     <td>
                         <v-btn color="primary" @click="showDetail(item.id)">
                             Show

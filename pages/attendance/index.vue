@@ -6,6 +6,7 @@
         <br>
         <v-row no-gutters class="mb-2">
             <v-col cols="3" class="pa-2">
+                
                 <v-text-field v-model="searchNIK" label="Cari NIK" clearable></v-text-field>
             </v-col>
     
@@ -48,8 +49,8 @@
         <v-table>
             <thead>
                 <tr>
-                    <th>NIK</th>
-                    <th>Nama</th>
+                    <!-- <th>NIK</th> -->
+                    <th>Tanggal</th>
                     <th>Lokasi</th>
                     <th>Action</th>
                 </tr>
@@ -57,9 +58,10 @@
             <tbody>
     
                 <tr v-for="item in attendances" :key="item.id">
-                    <td>{{ item.taxpayer.nik }}</td>
-                    <td>{{ item.taxpayer.name }}</td>
-                    <td>{{ item.project.project_name }}</td>
+                    <!-- <td>{{ item.taxpayer.nik }}</td> -->
+                    <td>{{ item.attendance_date }}</td>
+                    <td>{{ item.project?.project_name || "-" }}</td>
+
                     <td>
                         <v-btn color="primary" @click="showDetail(item.taxpayer.id)">Show</v-btn>
                         <v-btn color="primary" @click="update(item.taxpayer.id)">Update</v-btn>
