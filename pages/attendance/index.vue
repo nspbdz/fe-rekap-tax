@@ -6,8 +6,8 @@
         <br>
         <v-row no-gutters class="mb-2">
             <v-col cols="3" class="pa-2">
-                
-                <v-text-field v-model="searchNIK" label="Cari NIK" clearable></v-text-field>
+                <BaseForm :fields="formFieldsSearch" v-model="formDataSearch" />
+                <!-- <v-text-field v-model="searchNIK" label="Cari NIK" clearable></v-text-field> -->
             </v-col>
     
             <v-col cols="3" class="pa-2">
@@ -126,23 +126,25 @@ const fetchLocations = async () => {
 }
 
 const payload = computed(() => ({
-    nik: searchNIK.value,
+    // nik: searchNIK.value,
+    year: "",
+    month: "",
     project_id: selectedLocation.value,
     per_page: perPage.value,
     page: currentPage.value,
 }));
 
 const fetchAttendances = async () => {
-    console.log("Payload:", payload.value);
+    // console.log("Payload:", payload.value);
 
     const response = await attendanceStore.fetchAttendances(payload.value);
-    console.log("Attendances updated:12312312", response);
+    // console.log("Attendances updated:12312312", response);
 
     if (response.data) {
         totalRecords.value = response.total; // Pastikan API mengembalikan total data
         attendances.value = response.data; // Simpan hasil response ke variabel attendances
-        console.log("Attendances updated321:", attendances.value);
-        console.log("Attendances :", response);
+        // console.log("Attendances updated321:", attendances.value);
+        // console.log("Attendances :", response);
     } else {
         console.warn("No data received from API");
     }
@@ -178,6 +180,18 @@ const formData= ref({
     file: null,
 });
 
+const formDataSearch= ref({
+    year: "",
+    month: "",
+    project_id: "",
+});
+
+
+
+
+const formFieldsSearch = computed(() => [
+    { label: "Tanggal", model: "picker", type: "text", inputType: "month", required: false },
+]);
 
 
 const formFieldsAdd = computed(() => [
@@ -208,8 +222,17 @@ const formFieldsExpor = [
 ];
 
 const submitForm = (data) => {
+    
+
+    payload.value.year =  formDataSearch.value.picker.split("-")[0] 
+     payload.value.month = formDataSearch.value.picker.split("-")[1] 
+    console.log('formData.valueformData.value', formData.value)
+    
     fetchAttendances();
     console.log("Data tersimpan:", data);
+    console.log('formDataSearchformDataSearch', formDataSearch.value)
+    
+
 };
 
 const submitFormExpor = async (item) => {

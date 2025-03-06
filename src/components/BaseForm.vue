@@ -10,6 +10,8 @@ const props = defineProps({
   },
 });
 
+const formRef = ref(null); // ⬅️ Tambahkan ref untuk form
+
 const emit = defineEmits(["update:modelValue", "submit"]);
 const formData = ref({});
 
@@ -45,6 +47,11 @@ const handleMonthYearSelect = (field, date) => {
   const formattedDate = formatMonthYear(date);
   updateField(field, formattedDate);
 };
+
+const isFormValid = computed(() => {
+  if (!formRef.value) return false;
+  return formRef.value.isValid;
+});
 </script>
 
 <template>
@@ -115,7 +122,9 @@ const handleMonthYearSelect = (field, date) => {
 
     <v-row>
       <v-col cols="12" class="text-right">
-        <v-btn v-if="props.showSubmit" color="primary" type="submit">Submit</v-btn>
+        <v-btn v-if="props.showSubmit && isFormValid" color="primary" type="submit">
+          Submit
+        </v-btn>
       </v-col>
     </v-row>
     <!-- <v-btn v-if="props.showSubmit" color="primary" type="submit">Submit</v-btn> -->

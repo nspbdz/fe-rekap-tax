@@ -15,7 +15,7 @@
         </v-dialog>
     
         <BaseDialog v-model="isUpdateDialogOpen" title="Update Project" hideActivator @closed="isUpdateDialogOpen = false">
-            <BaseForm :fields="formFieldsUpdate" v-model="selectedProject" @submit="updateProject" />
+            <BaseForm :fields="formFieldsUpdate" v-model="formData" :showSubmit="false"/>
         </BaseDialog>
     
         <v-snackbar v-model="showSuccess" timeout="3000" color="green">
